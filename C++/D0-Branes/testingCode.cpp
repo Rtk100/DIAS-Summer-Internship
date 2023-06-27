@@ -126,58 +126,17 @@ int main()
         A_vector.push_back( Acceleration( X_vector[i], X_vector, delta_t, zero_matrix, rows, cols) );
     }  
 
-    // Export initial X/V/A_vector to text files to be analysed in python.
 
-
-
-
-    /*
-    std:: fstream X_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/X_vector_initial.txt", std:: ios:: out);
-    X_vector_Export << std::fixed << std::setprecision(15);
-
-    //Print to text file
-    for (matrix Matrix : X_vector)
-        {
-            X_vector_Export << Matrix << ",";
-        }
-
-    X_vector_Export.close();
-
-
-    std:: fstream V_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/V_vector_initial.txt", std:: ios:: out);
-    V_vector_Export << std::fixed << std::setprecision(15);
-
-    for (matrix Matrix : V_vector)
-        {
-            V_vector_Export << Matrix << ",";
-        }
-
-    V_vector_Export.close();
-
-    std:: fstream A_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/A_vector_initial.txt", std:: ios:: out);
-    A_vector_Export << std::fixed << std::setprecision(15);
-    // Print to text file
-    for (matrix Matrix : A_vector)
-    {
-        A_vector_Export << Matrix << ",";
-    }
-
-    A_vector_Export.close();
-
-    std::cout << X_vector[0];
-    */
-
-
-
-        // Create  vectors to store the new matrices
+    // Write simulation to thermalise system
     std::vector<matrix> X_vector_new;
     std::vector<matrix> V_vector_new;
     std::vector<matrix> A_vector_new;
-    // Write simulation to thermalise system
 
-    for (int i = 0; i < 1.0 / delta_t; ++i)
+    for (int i = 0; i < 1 / delta_t; ++i)
     {
+        // Create  vectors to store the new matrices
 
+                std::cout << X_vector[0];
 
         // velocity Verlet 1 to get new positions from old positions, momentums and rate of change of momentums
 
@@ -185,7 +144,6 @@ int main()
         {
             X_vector_new[i] = X_vector[i] + V_vector[i] * delta_t + 0.5 * A_vector[i] * delta_t * delta_t;
         }
-
         // Generate and store new A1, A2, A3, A4, A5, A6, A7, A8, and A9
         for (int i = 0; i < 9; ++i) 
         {
