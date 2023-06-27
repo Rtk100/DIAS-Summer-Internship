@@ -49,7 +49,6 @@ int main()
             xSimulationExport << "," << x_new;
             pSimulationExport << "," << p_new;
             
-            std:: cout << p_new;
         }
 
         // Update coords
