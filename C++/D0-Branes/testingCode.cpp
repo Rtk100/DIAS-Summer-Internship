@@ -52,46 +52,29 @@ matrix generateHermitianMatrix(int rows, int cols)
     return Matrix;
 }
 
-// Commutator of two matrices
-matrix commutator(const matrix& A, const matrix& B, int rows, int cols) 
+matrix commutator(matrix A, matrix B)
 {
-
-
-    matrix result(rows, cols);
-
-    for (int i = 0; i < rows; ++i) 
-    {
-        for (int j = 0; j < cols; ++j) 
-        {
-            result(i,j) = 0.0;
-            for (int k = 0; k < cols; ++k) 
-            {
-                result(i,j) += (A(i,k) * B(k,j)) - (B(i,k) * A(k,j));
-            }
-        }
-    }
-
-    return result;
-}
+    return A * B - B * A;
+} 
 
 // Acceleration of each coordinate matrix
-matrix Acceleration(matrix X, std::vector<matrix> X_vector, const double delta_t, matrix commutator_sum, int rows, int cols)
+matrix Acceleration(const int j, std::vector<matrix> X_vector, int rows, int cols)
 {
-    
+    matrix commutator_sum = Eigen::MatrixXd::Zero(rows, cols);
+    matrix X = X_vector[j];
     for (int i = 0; i < 9; ++i)
     {
-         matrix temp_commutator = commutator(X, X_vector[i], rows, cols);
-         matrix one_summand = commutator(X_vector[i], temp_commutator, rows, cols);
-        
-        for (int i = 0; i < rows; ++i) 
-        {
-            for (int j = 0; j < cols; ++j) 
-            {
-                commutator_sum(i,j) += one_summand(i,j);
-            }
-        }
-    }   
+        if (i != j)
+        {  
+            matrix temp_commutator = commutator(X_vector[i], commutator(X, X_vector[i]));
+            
+            commutator_sum = commutator_sum + temp_commutator;
+                
+            
+        }   
+    }
     return commutator_sum;
+
 }
 
 int main() 
@@ -113,54 +96,19 @@ int main()
 
     // Create a zero matrix in order to populate the V_vector with it.
     matrix zero_matrix = Eigen::MatrixXd::Zero(rows, cols);
+    std::cout << zero_matrix;
+   
+    Eigen::Matrix3d test;
+    test << 1,2,3,
+            3,4,5,
+            6,7,8;
+    std::cout << test;
+    
+    test = Acceleration(0, X_vector, 3, 3);
+    std::cout << test;
 
-    // Generate and store V1, V2, V3, V4, V5, V6, V7, V8, and V9
-    for (int i = 0; i < 9; ++i) 
-    {
-        V_vector.push_back(zero_matrix);
-    }  
-
-    // Generate and store A1, A2, A3, A4, A5, A6, A7, A8, and A9
-    for (int i = 0; i < 9; ++i) 
-    {
-        A_vector.push_back( Acceleration( X_vector[i], X_vector, delta_t, zero_matrix, rows, cols) );
-    }  
-
-
-    // Write simulation to thermalise system
-    std::vector<matrix> X_vector_new;
-    std::vector<matrix> V_vector_new;
-    std::vector<matrix> A_vector_new;
-
-    for (int i = 0; i < 1 / delta_t; ++i)
-    {
-        // Create  vectors to store the new matrices
-
-                std::cout << X_vector[0];
-
-        // velocity Verlet 1 to get new positions from old positions, momentums and rate of change of momentums
-
-        for (int i = 0; i < 9; ++i)
-        {
-            X_vector_new[i] = X_vector[i] + V_vector[i] * delta_t + 0.5 * A_vector[i] * delta_t * delta_t;
-        }
-        // Generate and store new A1, A2, A3, A4, A5, A6, A7, A8, and A9
-        for (int i = 0; i < 9; ++i) 
-        {
-            A_vector.push_back( Acceleration( X_vector_new[i], X_vector_new, delta_t, zero_matrix, rows, cols) );
-        }  
-        
-        // Use Velocity Verlet 2 to get new momentums
-        for (int i = 0; i < 9; ++i)
-        {
-            V_vector_new[i] = V_vector[i] + 0.5 * (A_vector_new[i] + A_vector[i]) * delta_t;
-        }
-
-        X_vector = X_vector_new;
-        V_vector = V_vector_new;
-        A_vector = A_vector_new;
-    }
 
 
     return 0;
+
 }
