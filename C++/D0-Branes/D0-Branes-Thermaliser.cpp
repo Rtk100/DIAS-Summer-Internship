@@ -8,14 +8,17 @@
 #include <vector>
 #include "eigen/Eigen/Dense"
 
-
 // Define timestep
-const double delta_t = 10e-5;
+const double delta_t = 1e-4;
+const double seconds_thermalised = 100;
+
 // Repeat simulation for 1000 seconds.
-const int simulation_repetitions = 1000 / delta_t;
+const int simulation_repetitions = seconds_thermalised / delta_t;
 // Number of D0-Branes
 const int N = 3;
 
+// Dimension of space
+const int dim = 9;
 
 typedef double R_or_C;
 typedef Eigen:: Matrix<double, N, N> matrix;
@@ -28,12 +31,58 @@ typedef Eigen:: Matrix<std::complex<double>, N, N> matrix;
 
 */
 
+
+matrix commutator(matrix A, matrix B)
+{
+    return A * B - B * A;
+} 
+
+
+// Cillian's Hamiltonian
+double H(
+    double g, 
+    matrix X1, matrix X2, matrix X3, matrix X4, matrix X5, matrix X6, matrix X7, matrix X8, matrix X9,
+    matrix V1, matrix V2, matrix V3, matrix V4, matrix V5, matrix V6, matrix V7, matrix V8, matrix V9)
+{
+    // Compute kinetic energy T
+    R_or_C T = 1/(2*pow(g,2)) * (V1*V1 + V2*V2 + V3*V3 + V4*V4 + V5*V5 + V6*V6 + V7*V7 + V8*V8 + V9*V9).trace();
+
+    matrix X[9] = {X1,X2,X3,X4,X5,X6,X7,X8,X9}; 
+
+    matrix commutator_sum;  
+    for (int i = 0; i < 9; i++)
+    {
+        for (int j = 0; j < 9; j++)
+        {
+            if(i == j)
+                continue;
+            commutator_sum += commutator(X[i],X[j])*commutator(X[i],X[j]); //can likely be more efficient by less function calls
+        }
+    }
+    R_or_C U = - 1/(4*pow(g,2)) * commutator_sum.trace();
+    return std:: abs(T + U);
+}
+
+// Cillian's Gauss' law
+matrix gauss_law(
+    matrix X1, matrix X2, matrix X3, matrix X4, matrix X5, matrix X6, matrix X7, matrix X8, matrix X9,
+    matrix V1, matrix V2, matrix V3, matrix V4, matrix V5, matrix V6, matrix V7, matrix V8, matrix V9)
+{
+    matrix result;
+    for (int i = 0; i < 9; i ++)
+    {
+        result = commutator(X1,V1) + commutator(X2,V2) + commutator(X3,V3) + commutator(X4,V4) + commutator(X5,V5) +
+        commutator(X6,V6) + commutator(X7,V7) + commutator(X8,V8) + commutator(X9,V9);
+    }
+    return result;
+}
 // Random Hermitian matrix
 matrix generateHermitianMatrix(int rows, int cols) 
-{
-    std::random_device rd;
-    std::mt19937 rng(std::time(nullptr));
-    std::normal_distribution<double> dist(0.0, 1.0);
+{   
+    static std::random_device rd;
+
+    static std::mt19937 rng{rd()}; 
+    std::normal_distribution<double> dist(0.0, 0.01);
 
     matrix Matrix(rows, cols);
 
@@ -67,12 +116,6 @@ matrix generateHermitianMatrix(int rows, int cols)
     return Matrix;
 }
 
-// Commutator of two matrices
-
-matrix commutator(matrix A, matrix B)
-{
-    return A * B - B * A;
-} 
 
 // Original commutator with loops.
 /*
@@ -99,19 +142,19 @@ matrix commutator(const matrix& A, const matrix& B, int rows, int cols)
 */
 
 // Acceleration of each coordinate matrix
-matrix Acceleration(const int j, std::vector<matrix> X_vector, int rows, int cols)
+matrix Acceleration(const int j, matrix* X_vector, int rows, int cols)
 {
-    matrix commutator_sum = Eigen::MatrixXd::Zero(rows, cols);
+    matrix commutator_sum = matrix::Zero(rows, cols);
 
     matrix X = X_vector[j];
-    for (int i = 0; i < 9; ++i)
+    for (int i = 0; i < dim; ++i)
     {
         if (i != j)
         {  
             matrix temp_commutator = commutator(X_vector[i], commutator(X, X_vector[i]));
             
 
-            commutator_sum = commutator_sum + temp_commutator;
+            commutator_sum += temp_commutator;
             
         }   
     }
@@ -124,80 +167,67 @@ int main()
     const int cols = 3;
 
     // Create  vectors to store the matrices
-    std::vector<matrix> X_vector;
-    std::vector<matrix> V_vector;
-    std::vector<matrix> A_vector;
+    matrix X_vector[dim];
+    matrix V_vector[dim];
+    matrix A_vector[dim];
+
 
 
     // Generate and store X1, X2, X3, X4, X5, X6, X7, X8, and X9
-    for (int i = 0; i < 9; ++i) 
+    for (int i = 0; i < dim; ++i) 
     {
-        X_vector.push_back(generateHermitianMatrix(rows, cols));
+        X_vector[i] = generateHermitianMatrix(rows, cols);
     }
 
     // Create a zero matrix in order to populate the V_vector with it.
-    matrix zero_matrix = Eigen::MatrixXd::Zero(rows, cols);
+    matrix zero_matrix = matrix::Zero(rows, cols);
 
     // Generate and store V1, V2, V3, V4, V5, V6, V7, V8, and V9
-    for (int i = 0; i < 9; ++i) 
+    for (int i = 0; i < dim; ++i) 
     {
-        V_vector.push_back(zero_matrix);
+        V_vector[i] = zero_matrix;
     }  
 
     // Generate and store A1, A2, A3, A4, A5, A6, A7, A8, and A9
-    for (int i = 0; i < 9; ++i) 
+    for (int i = 0; i < dim; ++i) 
     {
-        A_vector.push_back( Acceleration(i, X_vector, rows, cols) );
+        A_vector[i] = Acceleration(i, X_vector, rows, cols);
     }  
+
 
     // Export initial X/V/A_vector to text files to be analysed in python.
 
-    std:: fstream X_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/X_vector_initial.txt", std:: ios:: out);
+    std:: fstream X_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/X_vector_test2.txt", std:: ios:: out);
     X_vector_Export << std::fixed << std::setprecision(15);
-
     //Print to text file
     for (matrix Matrix : X_vector)
         {
-            X_vector_Export << Matrix << ";";
+            X_vector_Export << Matrix << std::endl;
         }
 
-
-    std:: fstream V_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/V_vector_initial.txt", std:: ios:: out);
+    std:: fstream V_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/V_vector_test2.txt", std:: ios:: out);
     V_vector_Export << std::fixed << std::setprecision(15);
-
     for (matrix Matrix : V_vector)
         {
-            V_vector_Export << Matrix << ";";
+            V_vector_Export << Matrix << std::endl;
         }
 
-    std:: fstream A_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/A_vector_initial.txt", std:: ios:: out);
+    std:: fstream A_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/A_vector_test2.txt", std:: ios:: out);
     A_vector_Export << std::fixed << std::setprecision(15);
     // Print to text file
     for (matrix Matrix : A_vector)
     {
-        A_vector_Export << Matrix << ";";
+        A_vector_Export << Matrix << std::endl;
     }
 
     // Create  vectors to store the new matrices
-    std::vector<matrix> X_vector_new;
-    std::vector<matrix> V_vector_new;
-    std::vector<matrix> A_vector_new;
+    matrix X_vector_new[9] = {zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix};
+    matrix V_vector_new[9] = {zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix};
+    matrix A_vector_new[9] = {zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix};
 
-    // Make the vectors the correct size
-        for (int i = 0; i < 9; ++i) 
-    {
-        X_vector_new.push_back(zero_matrix);
-        V_vector_new.push_back(zero_matrix);
-        A_vector_new.push_back(zero_matrix);
-
-    }  
-
-    std::cout << "original" << X_vector[0];
     // Write simulation to thermalise system
-    std::cout<< "Number of simulation repetitions:" << 1.0 / delta_t;
-    for (int j = 0; j < 10000; ++j)
+    for (int j = 0; j < seconds_thermalised / delta_t; ++j)
     {
-
 
         // velocity Verlet 1 to get new positions from old positions, momentums and rate of change of momentums
 
@@ -205,10 +235,6 @@ int main()
         {
             X_vector_new[i] = X_vector[i] + V_vector[i] * delta_t + 0.5 * A_vector[i] * delta_t * delta_t;
         }
-
-
-        std::cout <<std::endl << "X_vector new[0] =" << X_vector[0] + V_vector[0] * delta_t + 0.5 * A_vector[0] * delta_t * delta_t;
-
 
         // Generate and store new A1, A2, A3, A4, A5, A6, A7, A8, and A9
         for (int i = 0; i < 9; ++i) 
@@ -222,37 +248,43 @@ int main()
             V_vector_new[i] = V_vector[i] + 0.5 * (A_vector_new[i] + A_vector[i]) * delta_t;
         }
 
-        std::cout << std::endl<< "Before"<< X_vector[0]<< std::endl;
-        X_vector = X_vector_new;
-        V_vector = V_vector_new;
-        A_vector = A_vector_new;
-        std::cout << std::endl<< "After"<< X_vector[0]<< std::endl;
-        std::cout << std::endl<< "Ideal" << X_vector_new[0] << std::endl;
+        // Copy elements from X_vector_new to X_vector
+        std::memcpy(X_vector, X_vector_new, sizeof(X_vector_new));  
 
-        if (j % 1000 == 0)
+        // Copy elements from X_vector_new to X_vector
+        std::memcpy(V_vector, V_vector_new, sizeof(V_vector_new)); 
+
+        // Copy elements from X_vector_new to X_vector
+        std::memcpy(A_vector, A_vector_new, sizeof(A_vector_new)); 
+
+        if (j % 10000 == 0)
         {
-            std::cout << A_vector_new[0];
+            //matrix gauss_law(X_vector_new[0], X_vector_new[1], X_vector_new[2], X_vector_new[3], X_vector_new[4], X_vector_new[5], X_vector_new[6], X_vector_new[7], X_vector_new[8],
+            //                V_vector_new[0], V_vector_new[1], V_vector_new[2], V_vector_new[3], V_vector_new[4], V_vector_new[5], V_vector_new[6], V_vector_new[7], V_vector_new[8]);
 
+            std::cout << std::endl;
+            std::cout << "H" << std::setprecision(15) << H(1.0, 
+                            X_vector_new[0], X_vector_new[1], X_vector_new[2], X_vector_new[3], X_vector_new[4], X_vector_new[5], X_vector_new[6], X_vector_new[7], X_vector_new[8],
+                            V_vector_new[0], V_vector_new[1], V_vector_new[2], V_vector_new[3], V_vector_new[4], V_vector_new[5], V_vector_new[6], V_vector_new[7], V_vector_new[8]);
+        
+            for ( matrix Matrix : X_vector_new)
+            {
+                X_vector_Export << Matrix << std::endl;
+            }
+
+            for ( matrix Matrix : V_vector_new)
+            {
+                V_vector_Export << Matrix << std::endl;
+            }
+
+            for ( matrix Matrix : A_vector_new)
+            {   
+                A_vector_Export << Matrix << std::endl;
+            }
         }
 
     }
 
-
-
-    for ( matrix Matrix : X_vector_new)
-    {
-        X_vector_Export << Matrix << ";";
-    }
-
-    for ( matrix Matrix : V_vector_new)
-    {
-        X_vector_Export << Matrix << ";";
-    }
-
-    for ( matrix Matrix : A_vector_new)
-    {
-        A_vector_Export << Matrix << ";";
-    }
     X_vector_Export.close();
     V_vector_Export.close();
     A_vector_Export.close();

@@ -12,9 +12,9 @@
 const double delta_t = 10e-5;
 // Repeat simulation for 1000 seconds.
 const int simulation_repetitions = 1000 / delta_t;
+const int N = 3;
 
-
-typedef Eigen::MatrixXcd matrix;
+typedef Eigen::Matrix<double, N, N> matrix;
 
 // Random Hermitian matrix
 matrix generateHermitianMatrix(int rows, int cols) 
@@ -29,9 +29,7 @@ matrix generateHermitianMatrix(int rows, int cols)
     {
         for (int j = 0; j <= i; ++j) 
         {
-            double real = dist(gen);
-            double imag = dist(gen);
-            std::complex<double> element(real, imag);
+            double element = dist(gen);
 
             Matrix(i,j) = element;
             if (i != j) 
@@ -42,7 +40,7 @@ matrix generateHermitianMatrix(int rows, int cols)
     }
     // Make matrix traceless by replacing last entry with the negative of the sum of the other entries.
     // Calculate the sum of diagonal elements in X1
-    std::complex<double> diagonalSum = 0.0;
+    double diagonalSum = 0.0;
     for (int i = 0; i < rows-1; ++i) 
     {
         diagonalSum += Matrix(i,i);
@@ -58,24 +56,25 @@ matrix commutator(matrix A, matrix B)
 } 
 
 // Acceleration of each coordinate matrix
-matrix Acceleration(const int j, std::vector<matrix> X_vector, int rows, int cols)
+matrix Acceleration(const int i, std::vector<matrix> X_vector, int rows, int cols)
 {
-    matrix commutator_sum = Eigen::MatrixXd::Zero(rows, cols);
-    matrix X = X_vector[j];
-    for (int i = 0; i < 9; ++i)
+    matrix commutator_sum = matrix::Zero(rows, cols);
+    std::cout << "zeros" << commutator_sum;
+    matrix X = X_vector[i];
+    for (int j = 0; j < 4; ++j)
     {
         if (i != j)
         {  
-            matrix temp_commutator = commutator(X_vector[i], commutator(X, X_vector[i]));
+            matrix temp_commutator = commutator(X_vector[j], commutator(X, X_vector[j]));
             
-            commutator_sum = commutator_sum + temp_commutator;
-                
+            commutator_sum += temp_commutator;
             
         }   
     }
     return commutator_sum;
 
 }
+
 
 int main() 
 {
@@ -95,20 +94,24 @@ int main()
     }
 
     // Create a zero matrix in order to populate the V_vector with it.
-    matrix zero_matrix = Eigen::MatrixXd::Zero(rows, cols);
-    std::cout << zero_matrix;
+    matrix zero_matrix = matrix::Zero(rows, cols);
    
-    Eigen::Matrix3d test;
+    Eigen::Matrix3d test, test1, test2, test3;
     test << 1,2,3,
-            3,4,5,
-            6,7,8;
-    std::cout << test;
+            4,5,6,
+            7,8,9;
+
+
+
+    matrix answer2 = Acceleration(0, X_vector, 3, 3);
+
+    for (matrix matrix : X_vector)
+    {
+        std::cout << std::endl << matrix << std::endl << "New" ;
+    }
     
-    test = Acceleration(0, X_vector, 3, 3);
-    std::cout << test;
 
-
-
+   
     return 0;
 
 }
