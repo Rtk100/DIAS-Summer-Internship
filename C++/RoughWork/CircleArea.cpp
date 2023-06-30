@@ -14,6 +14,5 @@ int main() {
     std:: cin >> radius;
 
     std:: cout << "area of circle is: " << pi * pow(radius, 2);
-
     return 0;
 }
