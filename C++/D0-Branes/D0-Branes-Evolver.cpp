@@ -23,14 +23,6 @@ const int dim = 9;
 
 typedef double R_or_C;
 typedef Eigen:: Matrix<double, N, N> matrix;
-/*
-To go from real matrices to complex matrices delete the above typedefs and use these typedefs.
-And change the commented out code in generateHermitianMatrix()
-
-typedef std::complex<double> R_or_C;
-typedef Eigen:: Matrix<std::complex<double>, N, N> matrix;
-
-*/
 
 
 matrix commutator(matrix A, matrix B)
@@ -135,7 +127,7 @@ matrix Acceleration(const int j, matrix* X_vector, int rows, int cols, const dou
             
         }   
     // Comment out the line below to go back to the lagrangian e.q.m. With no -1/(g^2)
-    // commutator_sum = -1.0 / (g * g) * commutator_sum;
+    //commutator_sum = -1.0 / (g * g) * commutator_sum;
     }
     return commutator_sum;
 }
@@ -153,30 +145,99 @@ int main()
 
 
     // Generate and store X1, X2, X3, X4, X5, X6, X7, X8, and X9
-    for (int i = 0; i < dim; ++i) 
-    {
-        X_vector[i] = generateHermitianMatrix(rows, cols);
+        // Create an array to store the matrices
+    // Open the text file for reading
+    std::ifstream inputX("Thermalised_X.txt");
+    if (!inputX.is_open()) {
+        std::cerr << "Failed to open the file." << std::endl;
+        return 1;
     }
 
-    // Create a zero matrix in order to populate the V_vector with it.
-    matrix zero_matrix = matrix::Zero(rows, cols);
-
-    // Generate and store V1, V2, V3, V4, V5, V6, V7, V8, and V9
+    // Read the values from the file and store them in the matrices
     for (int i = 0; i < dim; ++i) 
     {
-        V_vector[i] = zero_matrix;
-    }  
 
-    // Generate and store A1, A2, A3, A4, A5, A6, A7, A8, and A9
+        for (int row = 0; row < rows; ++row) 
+        {
+            for (int col = 0; col < cols; ++col) 
+            {
+                 inputX >> X_vector[i](row, col);
+            }
+        }
+    }
+
+    // Close the input file
+    inputX.close();
+
+        // Create an array to store the matrices
+    // Open the text file for reading
+    std::ifstream inputV("Thermalised_V.txt");
+    if (!inputV.is_open()) {
+        std::cerr << "Failed to open the V file." << std::endl;
+        return 1;
+    }
+
+    // Read the values from the file and store them in the matrices
     for (int i = 0; i < dim; ++i) 
     {
-        A_vector[i] = Acceleration(i, X_vector, rows, cols, g);
-    }  
 
+        for (int row = 0; row < rows; ++row) 
+        {
+            for (int col = 0; col < cols; ++col) 
+            {
+                 inputV >> V_vector[i](row, col);
+            }
+        }
+    }
+
+    // Close the input file
+    inputV.close();
+
+        // Create an array to store the matrices
+    // Open the text file for reading
+    std::ifstream inputA("Thermalised_A.txt");
+    if (!inputA.is_open()) {
+        std::cerr << "Failed to open the file." << std::endl;
+        return 1;
+    }
+
+    // Read the values from the file and store them in the matrices
+    for (int i = 0; i < dim; ++i) 
+    {
+
+        for (int row = 0; row < rows; ++row) 
+        {
+            for (int col = 0; col < cols; ++col) 
+            {
+                 inputA >> A_vector[i](row, col);
+            }
+        }
+    }
+
+    // Close the input file
+    inputA.close();
+
+    std::cout << std::setprecision(15);
+
+    std::cout << "X_vector:";
+    for (matrix el : X_vector)
+    {
+        std::cout << std::endl<< el << std::endl;
+    }
+    std::cout << "V_vector:";
+    for (matrix el : V_vector)
+    {
+        std::cout << std::endl<< el << std::endl;
+    }
+    std::cout << "A_vector:";
+    for (matrix el : A_vector)
+    {
+        std::cout << std::endl<< el << std::endl;
+    }
 
     // Export initial X/V/A_vector to text files to be analysed in python.
 
-    std:: fstream X_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/X_vector_test4.txt", std:: ios:: out);
+    std:: fstream X_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/X_simulation_1.txt", std:: ios:: out);
     X_vector_Export << std::fixed << std::setprecision(15);
     //Print to text file
     for (matrix Matrix : X_vector)
@@ -184,14 +245,14 @@ int main()
             X_vector_Export << Matrix << std::endl;
         }
 
-    std:: fstream V_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/V_vector_test4.txt", std:: ios:: out);
+    std:: fstream V_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/V_simulation_1.txt", std:: ios:: out);
     V_vector_Export << std::fixed << std::setprecision(15);
     for (matrix Matrix : V_vector)
         {
             V_vector_Export << Matrix << std::endl;
         }
 
-    std:: fstream A_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/A_vector_test4.txt", std:: ios:: out);
+    std:: fstream A_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/A_simulation_1.txt", std:: ios:: out);
     A_vector_Export << std::fixed << std::setprecision(15);
     // Print to text file
     for (matrix Matrix : A_vector)
@@ -200,6 +261,8 @@ int main()
     }
 
     // Create  vectors to store the new matrices
+    matrix zero_matrix = matrix::Zero(rows, cols);
+
     matrix X_vector_new[9] = {zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix};
     matrix V_vector_new[9] = {zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix};
     matrix A_vector_new[9] = {zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix};
@@ -236,16 +299,25 @@ int main()
         // Copy elements from X_vector_new to X_vector
         std::memcpy(A_vector, A_vector_new, sizeof(A_vector_new)); 
 
-        if (j % 500000 == 0)
+
+
+        if (j % 10000 == 0)
         {
-            //matrix gauss_law(X_vector_new[0], X_vector_new[1], X_vector_new[2], X_vector_new[3], X_vector_new[4], X_vector_new[5], X_vector_new[6], X_vector_new[7], X_vector_new[8],
-            //                V_vector_new[0], V_vector_new[1], V_vector_new[2], V_vector_new[3], V_vector_new[4], V_vector_new[5], V_vector_new[6], V_vector_new[7], V_vector_new[8]);
+            std::cout << gauss_law(X_vector_new[0], X_vector_new[1], X_vector_new[2], X_vector_new[3], X_vector_new[4], X_vector_new[5], X_vector_new[6], X_vector_new[7], X_vector_new[8],
+                            V_vector_new[0], V_vector_new[1], V_vector_new[2], V_vector_new[3], V_vector_new[4], V_vector_new[5], V_vector_new[6], V_vector_new[7], V_vector_new[8]);
 
             std::cout << std::endl;
             std::cout << "H" << std::setprecision(15) << H(1.0, 
                             X_vector_new[0], X_vector_new[1], X_vector_new[2], X_vector_new[3], X_vector_new[4], X_vector_new[5], X_vector_new[6], X_vector_new[7], X_vector_new[8],
                             V_vector_new[0], V_vector_new[1], V_vector_new[2], V_vector_new[3], V_vector_new[4], V_vector_new[5], V_vector_new[6], V_vector_new[7], V_vector_new[8]);
-        
+
+        }
+
+        if (j % 100 == 0)
+        {
+            //matrix gauss_law(X_vector_new[0], X_vector_new[1], X_vector_new[2], X_vector_new[3], X_vector_new[4], X_vector_new[5], X_vector_new[6], X_vector_new[7], X_vector_new[8],
+            //                V_vector_new[0], V_vector_new[1], V_vector_new[2], V_vector_new[3], V_vector_new[4], V_vector_new[5], V_vector_new[6], V_vector_new[7], V_vector_new[8]);
+
             for ( matrix Matrix : X_vector_new)
             {
                 X_vector_Export << Matrix << std::endl;
