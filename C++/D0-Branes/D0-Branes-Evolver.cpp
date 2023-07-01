@@ -10,7 +10,7 @@
 
 // Define timestep
 const double delta_t = 1e-4;
-const double seconds_simulated = 10;
+const double seconds_simulated = 100;
 const double g = 1;
 
 // Repeat simulation for 1000 seconds.
@@ -232,8 +232,8 @@ int main()
     // Close the input file
     inputA.close();
 
-    std::ifstream inputX1("perturbed_X.txt");
-    if (!inputX1.is_open()) {
+    std::ifstream inputX2("perturbed_X.txt");
+    if (!inputX2.is_open()) {
         std::cerr << "Failed to open the file." << std::endl;
         return 1;
     }
@@ -246,13 +246,13 @@ int main()
         {
             for (int col = 0; col < cols; ++col) 
             {
-                 inputX1 >> X1_vector[i](row, col);
+                 inputX2 >> X2_vector[i](row, col);
             }
         }
     }
 
     // Close the input file
-    inputX1.close();
+    inputX2.close();
 
         // Create an array to store the matrices
     // Open the text file for reading
@@ -270,7 +270,7 @@ int main()
         {
             for (int col = 0; col < cols; ++col) 
             {
-                 inputV2 >> V1_vector[i](row, col);
+                 inputV2 >> V2_vector[i](row, col);
             }
         }
     }
@@ -360,7 +360,6 @@ int main()
         A2_vector_Export << Matrix << std::endl;
     }
 
-    std::cout << X2_vector[0];
 
 
 
@@ -400,19 +399,17 @@ int main()
 
     }
 
-
+/* To see how close the two sets of coordinates are ( ~9 decimal places close)
     for (int j = 0; j < dim; j++)
     {
-        std::cout << std::endl << "X1 matrix "<< j << "="<< X1_vector[j] << std::endl;
+        std::cout << std::endl <<std::fixed << std::setprecision(15)<< "X1 matrix "<< j << "="<< X1_vector[j] << std::endl;
         std::cout << std::endl << "X2 matrix "<< j << "="<< X2_vector[j] << std::endl;
         std::cout << std::endl << "V1 matrix "<< j << "="<< V1_vector[j] << std::endl;
         std::cout << std::endl << "V2 matrix "<< j << "="<< V2_vector[j] << std::endl;
         std::cout << std::endl << "A1 matrix "<< j << "="<< A1_vector[j] << std::endl;
         std::cout << std::endl << "A2 matrix "<< j << "="<< A2_vector[j] << std::endl;
-
-
     }
-
+*/
 
 
 
@@ -429,8 +426,8 @@ int main()
             X1_vector_new[i] = X1_vector[i] + V1_vector[i] * delta_t + 0.5 * A1_vector[i] * delta_t * delta_t;
             X2_vector_new[i] = X2_vector[i] + V2_vector[i] * delta_t + 0.5 * A2_vector[i] * delta_t * delta_t;
 
-        }
 
+        }
         // Generate and store new A1, A2, A3, A4, A5, A6, A7, A8, and A9
         for (int i = 0; i < 9; ++i) 
         {
@@ -450,7 +447,6 @@ int main()
         std::memcpy(X1_vector, X1_vector_new, sizeof(X1_vector_new));  
         std::memcpy(X2_vector, X2_vector_new, sizeof(X2_vector_new));  
 
-
         // Copy elements from X_vector_new to X_vector
         std::memcpy(V1_vector, V1_vector_new, sizeof(V1_vector_new)); 
         std::memcpy(V2_vector, V2_vector_new, sizeof(V2_vector_new));  
@@ -461,26 +457,40 @@ int main()
 
 
 
-        if (j % 10000 == 0)
-        {
-            //std::cout << gauss_law(X_vector_new[0], X_vector_new[1], X_vector_new[2], X_vector_new[3], X_vector_new[4], X_vector_new[5], X_vector_new[6], X_vector_new[7], X_vector_new[8],
-            //                V_vector_new[0], V_vector_new[1], V_vector_new[2], V_vector_new[3], V_vector_new[4], V_vector_new[5], V_vector_new[6], V_vector_new[7], V_vector_new[8]);
+        //if (j % 10000 == 0)
+        //{
+            //std::cout <<std::endl << "Gauss 1 :"<< gauss_law(X1_vector_new[0], X1_vector_new[1], X1_vector_new[2], X1_vector_new[3], X1_vector_new[4], X1_vector_new[5], X1_vector_new[6], X1_vector_new[7], X1_vector_new[8],
+            //                V1_vector_new[0], V1_vector_new[1], V1_vector_new[2], V1_vector_new[3], V1_vector_new[4], V1_vector_new[5], V1_vector_new[6], V1_vector_new[7], V1_vector_new[8]);
+            //std::cout << std::endl << "Gauss 2 :" << gauss_law(X2_vector_new[0], X2_vector_new[1], X2_vector_new[2], X2_vector_new[3], X2_vector_new[4], X2_vector_new[5], X2_vector_new[6], X2_vector_new[7], X2_vector_new[8],
+            //                V2_vector_new[0], V2_vector_new[1], V2_vector_new[2], V2_vector_new[3], V2_vector_new[4], V2_vector_new[5], V2_vector_new[6], V2_vector_new[7], V2_vector_new[8]);
 
-            std::cout << std::endl;
-            std::cout << "H" << std::setprecision(15) << H(1.0, 
-                            X1_vector_new[0], X1_vector_new[1], X1_vector_new[2], X1_vector_new[3], X1_vector_new[4], X1_vector_new[5], X1_vector_new[6], X1_vector_new[7], X1_vector_new[8],
-                            V1_vector_new[0], V1_vector_new[1], V1_vector_new[2], V1_vector_new[3], V1_vector_new[4], V1_vector_new[5], V1_vector_new[6], V1_vector_new[7], V1_vector_new[8]);
 
-            std::cout << std::endl;
-            std::cout << "H" << std::setprecision(15) << H(1.0, 
-                            X2_vector_new[0], X2_vector_new[1], X2_vector_new[2], X2_vector_new[3], X2_vector_new[4], X2_vector_new[5], X2_vector_new[6], X2_vector_new[7], X2_vector_new[8],
-                            V2_vector_new[0], V2_vector_new[1], V2_vector_new[2], V2_vector_new[3], V2_vector_new[4], V2_vector_new[5], V2_vector_new[6], V2_vector_new[7], V2_vector_new[8]);
+            //std::cout << "X";
+            //for (matrix el : X1_vector_new)
+            //{
+            //    std::cout << std::endl << el << std::endl;
+            //}
+            //std::cout << "V";
 
-        }
+            //for (matrix el : V1_vector_new)
+            //{
+            //    std::cout << std::endl << el << std::endl;
+            //}
+            //std::cout << std::endl;
+            //std::cout << "H1 :" << std::setprecision(15) << H(1.0, 
+            //                X1_vector_new[0], X1_vector_new[1], X1_vector_new[2], X1_vector_new[3], X1_vector_new[4], X1_vector_new[5], X1_vector_new[6], X1_vector_new[7], X1_vector_new[8],
+            //                V1_vector_new[0], V1_vector_new[1], V1_vector_new[2], V1_vector_new[3], V1_vector_new[4], V1_vector_new[5], V1_vector_new[6], V1_vector_new[7], V1_vector_new[8]);
+
+            //std::cout << std::endl;
+            //std::cout << "H2 :" << std::setprecision(15) << H(1.0, 
+            //                X2_vector_new[0], X2_vector_new[1], X2_vector_new[2], X2_vector_new[3], X2_vector_new[4], X2_vector_new[5], X2_vector_new[6], X2_vector_new[7], X2_vector_new[8],
+            //                V2_vector_new[0], V2_vector_new[1], V2_vector_new[2], V2_vector_new[3], V2_vector_new[4], V2_vector_new[5], V2_vector_new[6], V2_vector_new[7], V2_vector_new[8]);
+
+        //}
 
         if (j % 1000 == 0)
         {
-            //matrix gauss_law(X_vector_new[0], X_vector_new[1], X_vector_new[2], X_vector_new[3], X_vector_new[4], X_vector_new[5], X_vector_new[6], X_vector_new[7], X_vector_new[8],
+            // gauss_law(X_vector_new[0], X_vector_new[1], X_vector_new[2], X_vector_new[3], X_vector_new[4], X_vector_new[5], X_vector_new[6], X_vector_new[7], X_vector_new[8],
             //                V_vector_new[0], V_vector_new[1], V_vector_new[2], V_vector_new[3], V_vector_new[4], V_vector_new[5], V_vector_new[6], V_vector_new[7], V_vector_new[8]);
 
             for ( matrix Matrix : X1_vector_new)

@@ -10,7 +10,7 @@
 
 // Define timestep
 const double delta_t = 1e-4;
-const double seconds_thermalised = 10;
+const double seconds_thermalised = 50;
 const double g = 1;
 
 // Repeat simulation for 1000 seconds.
@@ -152,7 +152,7 @@ int main()
     matrix X_vector[dim];
     matrix V_vector[dim];
     matrix A_vector[dim];
-
+/* For testing reproducibility use these X values
     std::ifstream inputX("initial_X.txt");
     if (!inputX.is_open()) {
         std::cerr << "Failed to open the file." << std::endl;
@@ -174,15 +174,15 @@ int main()
 
     // Close the input file
     inputX.close();
+*/
 
-/*
     // Generate and store X1, X2, X3, X4, X5, X6, X7, X8, and X9
     for (int i = 0; i < dim; ++i) 
     {
         X_vector[i] = generateHermitianMatrix(rows, cols);
     }
 
-*/
+
 
     // Create a zero matrix in order to populate the V_vector with it.
     matrix zero_matrix = matrix::Zero(rows, cols);
