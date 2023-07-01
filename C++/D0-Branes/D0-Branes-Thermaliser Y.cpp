@@ -10,7 +10,7 @@
 
 // Define timestep
 const double delta_t = 1e-4;
-const double seconds_thermalised = 10;
+const double seconds_thermalised = 20;
 const double g = 1;
 
 // Repeat simulation for 1000 seconds.
@@ -22,7 +22,7 @@ const int N = 2;
 const int dim = 9;
 
 typedef double R_or_C;
-typedef Eigen:: Matrix<double, N, N> matrix;
+typedef Eigen::Matrix<double, N, N> matrix;
 /*
 To go from real matrices to complex matrices delete the above typedefs and use these typedefs.
 And change the commented out code in generateHermitianMatrix()
@@ -46,7 +46,7 @@ double H(
     matrix V1, matrix V2, matrix V3, matrix V4, matrix V5, matrix V6, matrix V7, matrix V8, matrix V9)
 {
     // Compute kinetic energy T
-    R_or_C T = 1.0/(2.0*pow(g,2)) * (V1*V1 + V2*V2 + V3*V3 + V4*V4 + V5*V5 + V6*V6 + V7*V7 + V8*V8 + V9*V9).trace();
+    R_or_C T = 1.0/(2.0) * (V1*V1 + V2*V2 + V3*V3 + V4*V4 + V5*V5 + V6*V6 + V7*V7 + V8*V8 + V9*V9).trace();
 
     matrix X[9] = {X1,X2,X3,X4,X5,X6,X7,X8,X9}; 
 
@@ -60,13 +60,13 @@ double H(
             commutator_sum += commutator(X[i],X[j])*commutator(X[i],X[j]); //can likely be more efficient by less function calls
         }
     }
-    R_or_C U = - 1.0/(4.0*pow(g,2)) * commutator_sum.trace();
+    R_or_C U = - 1.0 * pow(g,2)/(4.0) * commutator_sum.trace();
     return std:: abs(T + U);
 }
 
 // Cillian's Gauss' law
 matrix gauss_law(
-    matrix X1, matrix X2, matrix X3, matrix X4, matrix X5, matrix X6, matrix X7, matrix X8, matrix X9,
+    Eigen::Matrix<double, N, N> X1, matrix X2, matrix X3, matrix X4, matrix X5, matrix X6, matrix X7, matrix X8, matrix X9,
     matrix V1, matrix V2, matrix V3, matrix V4, matrix V5, matrix V6, matrix V7, matrix V8, matrix V9)
 {
     matrix result;
@@ -84,7 +84,7 @@ matrix gauss_law(
 static std::random_device rd;
 
 static std::mt19937 rng{rd()}; 
-std::normal_distribution<double> dist(0.0, 0.01);
+std::normal_distribution<double> dist(0.0, 0.1);
 
 matrix generateHermitianMatrix(int rows, int cols) 
 {   
@@ -131,7 +131,7 @@ matrix Acceleration(const int j, matrix* X_vector, int rows, int cols, const dou
     {
         if (i != j)
         {  
-            matrix temp_commutator = commutator(X_vector[i], commutator(X, X_vector[i]));
+            matrix temp_commutator = g * g * commutator(X_vector[i], commutator(X, X_vector[i]));
             
 
             commutator_sum += temp_commutator;
@@ -238,7 +238,7 @@ int main()
 
         for (int i = 0; i < 9; ++i)
         {
-            X_vector_new[i] = X_vector[i] + V_vector[i] * delta_t + 0.5 * A_vector[i] * delta_t * delta_t;
+            X_vector_new[i] = 1.0/g * (g * X_vector[i] + g * V_vector[i] * delta_t + 0.5 * A_vector[i] * delta_t * delta_t);
         }
 
         // Generate and store new A1, A2, A3, A4, A5, A6, A7, A8, and A9
@@ -250,7 +250,7 @@ int main()
         // Use Velocity Verlet 2 to get new momentums
         for (int i = 0; i < 9; ++i)
         {
-            V_vector_new[i] = V_vector[i] + 0.5 * (A_vector_new[i] + A_vector[i]) * delta_t;
+            V_vector_new[i] = 1.0/g * (g * V_vector[i] + 0.5 * (A_vector_new[i] + A_vector[i]) * delta_t);
         }
 
         // Copy elements from X_vector_new to X_vector
@@ -262,10 +262,10 @@ int main()
         // Copy elements from X_vector_new to X_vector
         std::memcpy(A_vector, A_vector_new, sizeof(A_vector_new)); 
 
-        if (j % 50000 == 0)
+        if (j % 10000 == 0)
         {
-            std::cout  << std::endl << gauss_law(X_vector_new[0], X_vector_new[1], X_vector_new[2], X_vector_new[3], X_vector_new[4], X_vector_new[5], X_vector_new[6], X_vector_new[7], X_vector_new[8],
-                                   V_vector_new[0], V_vector_new[1], V_vector_new[2], V_vector_new[3], V_vector_new[4], V_vector_new[5], V_vector_new[6], V_vector_new[7], V_vector_new[8]);
+            //matrix gauss_law(X_vector_new[0], X_vector_new[1], X_vector_new[2], X_vector_new[3], X_vector_new[4], X_vector_new[5], X_vector_new[6], X_vector_new[7], X_vector_new[8],
+            //               V_vector_new[0], V_vector_new[1], V_vector_new[2], V_vector_new[3], V_vector_new[4], V_vector_new[5], V_vector_new[6], V_vector_new[7], V_vector_new[8]);
 
             std::cout << std::endl;
             std::cout << "H" << std::setprecision(15) << H(1.0, 

@@ -10,13 +10,13 @@
 
 // Define timestep
 const double delta_t = 1e-4;
-const double seconds_thermalised = 1000;
+const double seconds_simulated = 10;
 const double g = 1;
 
 // Repeat simulation for 1000 seconds.
-const int simulation_repetitions = seconds_thermalised / delta_t;
+const int simulation_repetitions = seconds_simulated / delta_t;
 // Number of D0-Branes
-const int N = 3;
+const int N = 2;
 
 // Dimension of space
 const int dim = 9;
@@ -29,6 +29,12 @@ matrix commutator(matrix A, matrix B)
 {
     return A * B - B * A;
 } 
+
+matrix anti_commutator(matrix A, matrix B)
+{
+    return A * B + B * A;
+} 
+
 
 
 // Cillian's Hamiltonian
@@ -99,15 +105,33 @@ matrix Acceleration(const int j, matrix* X_vector, int rows, int cols, const dou
 matrix PerturbingAcceleration(const int j, matrix* X_vector, int rows, int cols, const double g)
 {
     matrix commutator_sum = matrix::Zero(rows, cols);
+    matrix sum_X = matrix::Zero(rows, cols);
+
+    static std::random_device rd;
+    static std::mt19937 rng{rd()}; 
+    std::normal_distribution<double> dist(0.0, 1e-8);
+
+    R_or_C c_1= 0.0; 
+    R_or_C c_2= 0.0;
 
     matrix X = X_vector[j];
     for (int i = 0; i < dim; ++i)
     {
+        c_1 = dist(rng);
+        c_2 = dist(rng);
+        sum_X = matrix::Zero(rows, cols);
+
         if (i != j)
         {  
             matrix temp_commutator = commutator(X_vector[i], commutator(X, X_vector[i]));
             
-            matrix perturbation = 
+            for( int k = 0; k < dim; ++k)
+            {
+                if (k != i)
+                sum_X += X_vector[k] * X_vector[k];
+            }
+
+            matrix perturbation = 2.0 * c_1 * X + 2.0 * c_2 * anti_commutator(X, sum_X );
 
             commutator_sum += (temp_commutator + perturbation);
             
@@ -121,8 +145,12 @@ matrix PerturbingAcceleration(const int j, matrix* X_vector, int rows, int cols,
 
 int main() 
 {
-    const int rows = 3;
-    const int cols = 3;
+    static std::random_device rd;
+    static std::mt19937 rng{rd()}; 
+    std::normal_distribution<double> dist(0.0, 1e-8);
+
+    const int rows = N;
+    const int cols = N;
 
     // Create  vectors to store the matrices
     matrix X1_vector[dim], X2_vector[dim];
@@ -204,11 +232,75 @@ int main()
     // Close the input file
     inputA.close();
 
-    // Make a second set of coordinates to be perturbed
-    std::memcpy(X2_vector, X1_vector, sizeof(X1_vector)); 
-    std::memcpy(X2_vector, X1_vector, sizeof(X1_vector));  
-    std::memcpy(X2_vector, X1_vector, sizeof(X1_vector));  
+    std::ifstream inputX1("perturbed_X.txt");
+    if (!inputX1.is_open()) {
+        std::cerr << "Failed to open the file." << std::endl;
+        return 1;
+    }
 
+    // Read the values from the file and store them in the matrices
+    for (int i = 0; i < dim; ++i) 
+    {
+
+        for (int row = 0; row < rows; ++row) 
+        {
+            for (int col = 0; col < cols; ++col) 
+            {
+                 inputX1 >> X1_vector[i](row, col);
+            }
+        }
+    }
+
+    // Close the input file
+    inputX1.close();
+
+        // Create an array to store the matrices
+    // Open the text file for reading
+    std::ifstream inputV2("perturbed_V.txt");
+    if (!inputV2.is_open()) {
+        std::cerr << "Failed to open the V file." << std::endl;
+        return 1;
+    }
+
+    // Read the values from the file and store them in the matrices
+    for (int i = 0; i < dim; ++i) 
+    {
+
+        for (int row = 0; row < rows; ++row) 
+        {
+            for (int col = 0; col < cols; ++col) 
+            {
+                 inputV2 >> V1_vector[i](row, col);
+            }
+        }
+    }
+
+    // Close the input file
+    inputV2.close();
+
+        // Create an array to store the matrices
+    // Open the text file for reading
+    std::ifstream inputA2("perturbed_A.txt");
+    if (!inputA2.is_open()) {
+        std::cerr << "Failed to open the file." << std::endl;
+        return 1;
+    }
+
+    // Read the values from the file and store them in the matrices
+    for (int i = 0; i < dim; ++i) 
+    {
+
+        for (int row = 0; row < rows; ++row) 
+        {
+            for (int col = 0; col < cols; ++col) 
+            {
+                 inputA2 >> A2_vector[i](row, col);
+            }
+        }
+    }
+
+    // Close the input file
+    inputA2.close();
 
     matrix zero_matrix = matrix::Zero(rows, cols);
 
@@ -219,49 +311,6 @@ int main()
     matrix A1_vector_new[9] = {zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix};
     matrix A2_vector_new[9] = {zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix};
     
-    // Perturb the system to get the two set of conditions, for 1 second before turning off the deformation.
-    for (int j = 0; j < 1.0 / delta_t; ++j)
-    {
-
-        // velocity Verlet 1 to get new positions from old positions, momentums and rate of change of momentums
-
-        for (int i = 0; i < 9; ++i)
-        {
-            X1_vector_new[i] = X1_vector[i] + V1_vector[i] * delta_t + 0.5 * A1_vector[i] * delta_t * delta_t;
-            X2_vector_new[i] = X2_vector[i] + V2_vector[i] * delta_t + 0.5 * A2_vector[i] * delta_t * delta_t;
-
-        }
-
-        // Generate and store new A1, A2, A3, A4, A5, A6, A7, A8, and A9
-        for (int i = 0; i < 9; ++i) 
-        {
-            A1_vector_new[i] = Acceleration( i, X1_vector_new, rows, cols, g);
-            A2_vector_new[i] = PerturbingAcceleration( i, X2_vector_new, rows, cols, g);
-        }  
-        
-        // Use Velocity Verlet 2 to get new momentums
-        for (int i = 0; i < 9; ++i)
-        {
-            V1_vector_new[i] = V1_vector[i] + 0.5 * (A1_vector_new[i] + A1_vector[i]) * delta_t;
-            V2_vector_new[i] = V2_vector[i] + 0.5 * (A2_vector_new[i] + A2_vector[i]) * delta_t;
-
-        }
-
-        // Copy elements from X_vector_new to X_vector
-        std::memcpy(X1_vector, X1_vector_new, sizeof(X1_vector_new));  
-        std::memcpy(X2_vector, X2_vector_new, sizeof(X2_vector_new));  
-
-
-        // Copy elements from X_vector_new to X_vector
-        std::memcpy(V1_vector, V1_vector_new, sizeof(V1_vector_new)); 
-        std::memcpy(V2_vector, V2_vector_new, sizeof(V2_vector_new));  
-
-        // Copy elements from X_vector_new to X_vector
-        std::memcpy(A1_vector, A1_vector_new, sizeof(A1_vector_new)); 
-        std::memcpy(A2_vector, A2_vector_new, sizeof(A2_vector_new));  
-
-
-
 
 
     // Export initial X/V/A_vector to text files to be analysed in python.
@@ -311,8 +360,66 @@ int main()
         A2_vector_Export << Matrix << std::endl;
     }
 
-    // Write simulation to thermalise system
-    for (int j = 0; j < seconds_thermalised / delta_t; ++j)
+    std::cout << X2_vector[0];
+
+
+
+// Write simulation to advance the original coordinates by 1 second.
+    for (int j = 0; j < 1 / delta_t; ++j)
+    {
+
+        // velocity Verlet 1 to get new positions from old positions, momentums and rate of change of momentums
+
+        for (int i = 0; i < 9; ++i)
+        {
+            X1_vector_new[i] = X1_vector[i] + V1_vector[i] * delta_t + 0.5 * A1_vector[i] * delta_t * delta_t;
+        }
+
+        // Generate and store new A1, A2, A3, A4, A5, A6, A7, A8, and A9
+        for (int i = 0; i < 9; ++i) 
+        {
+            A1_vector_new[i] = Acceleration( i, X1_vector_new, rows, cols, g);
+        }  
+        
+        // Use Velocity Verlet 2 to get new momentums
+        for (int i = 0; i < 9; ++i)
+        {
+            V1_vector_new[i] = V1_vector[i] + 0.5 * (A1_vector_new[i] + A1_vector[i]) * delta_t;
+
+        }
+
+        // Copy elements from X_vector_new to X_vector
+        std::memcpy(X1_vector, X1_vector_new, sizeof(X1_vector_new));  
+
+
+        // Copy elements from X_vector_new to X_vector
+        std::memcpy(V1_vector, V1_vector_new, sizeof(V1_vector_new)); 
+
+        // Copy elements from X_vector_new to X_vector
+        std::memcpy(A1_vector, A1_vector_new, sizeof(A1_vector_new)); 
+
+    }
+
+
+    for (int j = 0; j < dim; j++)
+    {
+        std::cout << std::endl << "X1 matrix "<< j << "="<< X1_vector[j] << std::endl;
+        std::cout << std::endl << "X2 matrix "<< j << "="<< X2_vector[j] << std::endl;
+        std::cout << std::endl << "V1 matrix "<< j << "="<< V1_vector[j] << std::endl;
+        std::cout << std::endl << "V2 matrix "<< j << "="<< V2_vector[j] << std::endl;
+        std::cout << std::endl << "A1 matrix "<< j << "="<< A1_vector[j] << std::endl;
+        std::cout << std::endl << "A2 matrix "<< j << "="<< A2_vector[j] << std::endl;
+
+
+    }
+
+
+
+
+
+
+    // Write simulation to simulate system
+    for (int j = 0; j < seconds_simulated / delta_t; ++j)
     {
 
         // velocity Verlet 1 to get new positions from old positions, momentums and rate of change of momentums
@@ -328,7 +435,7 @@ int main()
         for (int i = 0; i < 9; ++i) 
         {
             A1_vector_new[i] = Acceleration( i, X1_vector_new, rows, cols, g);
-            A2_vector_new[i] = Acceleration( i, X1_vector_new, rows, cols, g);
+            A2_vector_new[i] = Acceleration( i, X2_vector_new, rows, cols, g);
         }  
         
         // Use Velocity Verlet 2 to get new momentums
@@ -371,7 +478,7 @@ int main()
 
         }
 
-        if (j % 100 == 0)
+        if (j % 1000 == 0)
         {
             //matrix gauss_law(X_vector_new[0], X_vector_new[1], X_vector_new[2], X_vector_new[3], X_vector_new[4], X_vector_new[5], X_vector_new[6], X_vector_new[7], X_vector_new[8],
             //                V_vector_new[0], V_vector_new[1], V_vector_new[2], V_vector_new[3], V_vector_new[4], V_vector_new[5], V_vector_new[6], V_vector_new[7], V_vector_new[8]);

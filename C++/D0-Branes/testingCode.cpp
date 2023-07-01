@@ -78,6 +78,15 @@ matrix Acceleration(const int i, std::vector<matrix> X_vector, int rows, int col
 
 int main() 
 {
+    for (int i = 0; i < 9; ++i)
+    {
+        std::cout << i;
+    }
+
+    for (int i = 0; i < 9; i++)
+    {
+        std::cout << i;
+    }
     const int rows = 3;
     const int cols = 3;
 
@@ -89,7 +98,8 @@ int main()
 
     // Generate and store X1, X2, X3, X4, X5, X6, X7, X8, and X9
     for (int i = 0; i < 9; ++i) 
-    {
+    {   
+        
         X_vector.push_back(generateHermitianMatrix(rows, cols));
     }
 
@@ -97,17 +107,39 @@ int main()
     matrix zero_matrix = matrix::Zero(rows, cols);
    
     Eigen::Matrix3d test, test1, test2, test3;
-    test << 1,2,3,
-            4,5,6,
-            7,8,9;
+    test << 0, 0, 0, 0, 1, 0, 0, 0, 0;
 
 
+    test1 << 1,0,0,0,0,0,0,0,0;
 
-    matrix answer2 = Acceleration(0, X_vector, 3, 3);
+    test2 << 3,7,7,7,7,7,7,7,6;
 
-    for (matrix matrix : X_vector)
+    test3 << 3,9,9,9,9,9,99,9,6;
+
+    matrix test_old[2] = {test, test1};
+    matrix test_list2[2] = {test2, test3};
+
+for (int i = 0; i < 9; i++)
     {
-        std::cout << std::endl << matrix << std::endl << "New" ;
+        std::cout << std::endl << i << std::endl << std::endl;
+
+
+        std::cout << "Before; 1:" << test_old[0] << std::endl << test_old[1];
+        std::cout << std::endl << "Before; 2:" << test_list2[0] << std::endl << test_list2[1];
+
+        test_list2[0] = test_old[0] * 10.0;
+        test_list2[1] = test_old[1] * 10.0;
+
+        std::memcpy(test_old, test_list2, sizeof(test_list2));  
+/*
+    for (int i = 0; i < 9; i++)
+    {
+        test_list1[i] = test_list2[i]
+    }
+*/
+
+        std::cout << std::endl << "After; 1:" << test_old[0] << std::endl << test_old[1];
+        std::cout << std::endl << "After; 2:" << test_list2[0] << std::endl << test_list2[1];
     }
     
 
