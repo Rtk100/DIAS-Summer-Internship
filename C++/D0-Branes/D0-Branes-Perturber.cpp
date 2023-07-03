@@ -10,7 +10,7 @@
 
 // Define timestep
 const double delta_t = 1e-5;
-const double seconds_perturbed = 1;
+const double seconds_perturbed = 0.1;
 const double g = 1;
 
 // Repeat simulation for 1000 seconds.
@@ -280,16 +280,16 @@ int main()
         // Copy elements from X_vector_new to X_vector
         std::memcpy(A2_vector, A2_vector_new, sizeof(A2_vector_new));  
 
-        if (j % 1000 == 0)
+        if (j % 500== 0)
         {
-            std::cout << std::endl;
+            std::cout << '\n';
             std::cout << "H" << std::setprecision(15) << H(g, 
-                            X2_vector_new[0], X2_vector_new[1], X2_vector_new[2], X2_vector_new[3], X2_vector_new[4], X2_vector_new[5], X2_vector_new[6], X2_vector_new[7], X2_vector_new[8],
+                           X2_vector_new[0], X2_vector_new[1], X2_vector_new[2], X2_vector_new[3], X2_vector_new[4], X2_vector_new[5], X2_vector_new[6], X2_vector_new[7], X2_vector_new[8],
                             V2_vector_new[0], V2_vector_new[1], V2_vector_new[2], V2_vector_new[3], V2_vector_new[4], V2_vector_new[5], V2_vector_new[6], V2_vector_new[7], V2_vector_new[8]);
-            std::cout << std::endl << std::setprecision(15) << "Gauss" << gauss_law(X2_vector_new[0], X2_vector_new[1], X2_vector_new[2], X2_vector_new[3], X2_vector_new[4], X2_vector_new[5], X2_vector_new[6], X2_vector_new[7], X2_vector_new[8],
-                                                                  V2_vector_new[0], V2_vector_new[1], V2_vector_new[2], V2_vector_new[3], V2_vector_new[4], V2_vector_new[5], V2_vector_new[6], V2_vector_new[7], V2_vector_new[8]);
-
+           std::cout << '\n' << std::setprecision(15) << "Gauss" << gauss_law(X2_vector_new[0], X2_vector_new[1], X2_vector_new[2], X2_vector_new[3], X2_vector_new[4], X2_vector_new[5], X2_vector_new[6], X2_vector_new[7], X2_vector_new[8],
+                                                               V2_vector_new[0], V2_vector_new[1], V2_vector_new[2], V2_vector_new[3], V2_vector_new[4], V2_vector_new[5], V2_vector_new[6], V2_vector_new[7], V2_vector_new[8]);
         }
+        
 
     }
 
