@@ -7,12 +7,12 @@
 
 int start = std::time(nullptr);
 const int N = 2;
-const int iterations = 1e4;
-const double dt = 1e-4;
+const int iterations = 20000;
+const double dt = 1e-3;
 const double g = 1;
 
-typedef std::complex<double> complex;
-typedef Eigen:: Matrix<std::complex<double>, N, N> matrix;
+typedef double complex;
+typedef Eigen:: Matrix<double, N, N> matrix;
 
 matrix commutator(matrix A, matrix B)
 {
@@ -131,11 +131,11 @@ int main()
     {
         for (int j = 0; j < N; j++)
         {
-            complex z1 = complex(gauss_dist(rng),gauss_dist(rng)), z2 = complex(gauss_dist(rng),gauss_dist(rng)),
-            z3 = complex(gauss_dist(rng),gauss_dist(rng)), z4 = complex(gauss_dist(rng),gauss_dist(rng)),
-            z5 = complex(gauss_dist(rng),gauss_dist(rng)), z6 = complex(gauss_dist(rng),gauss_dist(rng)),
-            z7 = complex(gauss_dist(rng),gauss_dist(rng)), z8 = complex(gauss_dist(rng),gauss_dist(rng)),
-            z9 = complex(gauss_dist(rng),gauss_dist(rng));
+            complex z1 = complex(gauss_dist(rng)), z2 = complex(gauss_dist(rng)),
+            z3 = complex(gauss_dist(rng)), z4 = complex(gauss_dist(rng)),
+            z5 = complex(gauss_dist(rng)), z6 = complex(gauss_dist(rng)),
+            z7 = complex(gauss_dist(rng)), z8 = complex(gauss_dist(rng)),
+            z9 = complex(gauss_dist(rng));
             X1(i, j) = z1, X1(j, i) = std:: conj(z1);
             X2(i, j) = z2, X2(j, i) = std:: conj(z2);
             X3(i, j) = z3, X3(j, i) = std:: conj(z3);
@@ -192,7 +192,7 @@ int main()
     std:: cout << "V8:" << V8;
     std:: cout << "X1: " << X1 << std:: endl;
     // Run update function
-    for (int i = 0; i < 100000; i++)
+    for (int i = 0; i < iterations; i++)
     {
         update(
             dt,
@@ -201,24 +201,10 @@ int main()
             &V1,&V2,&V3,&V4,&V5,&V6,&V7,&V8,&V9,
             &F1_0,&F2_0,&F3_0,&F4_0,&F5_0,&F6_0,&F7_0,&F8_0,&F9_0,
             &F1_n,&F2_n,&F3_n,&F4_n,&F5_n,&F6_n,&F7_n,&F8_n,&F9_n);
-        /*
-        if (i%50000 == 0)
-        {
-            std:: cout << i << std::endl;
-            std:: cout << "time: " << std::time(nullptr) - start << std:: endl;
-            std:: cout << H(g,X1,X2,X3,X4,X5,X6,X7,X8,X9,V1,V2,V3,V4,V5,V6,V7,V8,V9) << std:: endl;
-        }
-        */
+
         if (i%1000 == 0)
         {
-            matrix A, B;
-            for (int j = 0; j < 9; j++)
-            {
-                A = commutator(X1,X3*X1) + commutator(X2,X3*X2) + commutator(X4,X3*X4) + commutator(X5,X3*X5) + commutator(X6,X3*X6)
-                + commutator(X7,X3*X7) + commutator(X8,X3*X8) + commutator(X9,X3*X9);
-                B = commutator(X1,X1*X3) + commutator(X2,X2*X3) + commutator(X4,X4*X3) + commutator(X5,X5*X3) + commutator(X6,X6*X3) 
-                + commutator(X7,X7*X3) + commutator(X8,X8*X3) + commutator(X9,X9*X3);
-            }
+
             std:: cout << "H: " << H(g,X1,X2,X3,X4,X5,X6,X7,X8,X9,V1,V2,V3,V4,V5,V6,V7,V8,V9) << std:: endl;
             std:: cout << "F3: " << F3_0;
             std:: cout << "V8:" << V8;

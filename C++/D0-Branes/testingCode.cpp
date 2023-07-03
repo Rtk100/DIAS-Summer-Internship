@@ -12,7 +12,7 @@
 const double delta_t = 10e-5;
 // Repeat simulation for 1000 seconds.
 const int simulation_repetitions = 1000 / delta_t;
-const int N = 3;
+const int N = 2;
 
 typedef Eigen::Matrix<double, N, N> matrix;
 
@@ -56,10 +56,13 @@ matrix commutator(matrix A, matrix B)
 } 
 
 // Acceleration of each coordinate matrix
-matrix Acceleration(const int i, std::vector<matrix> X_vector, int rows, int cols)
+matrix Acceleration(const int i, matrix* X_vector, int rows, int cols)
 {
     matrix commutator_sum = matrix::Zero(rows, cols);
     std::cout << "zeros" << commutator_sum;
+    matrix temp_commutator = matrix::Zero(rows, cols);
+    
+
     matrix X = X_vector[i];
     for (int j = 0; j < 4; ++j)
     {
@@ -74,7 +77,35 @@ matrix Acceleration(const int i, std::vector<matrix> X_vector, int rows, int col
     return commutator_sum;
 
 }
+// Acceleration of each coordinate matrix
+matrix Acceleration2(const int i, matrix* X_vector, int rows, int cols)
+{
+    matrix commutator_sum = matrix::Zero(rows, cols);
+    std::cout << "zeros" << commutator_sum;
+    matrix temp_commutator = matrix::Zero(rows, cols);
 
+    matrix X = X_vector[i];
+    for (int j = 0; j < 4; ++j)
+    {
+        if (i != j)
+        {  
+            matrix X_other = X_vector[j];
+            double g = X_other(0,0) * X(1,1) - X_other(1,1) * X(0,0);
+            double b = X_other(0,1);
+            double h = X(0,1) * b * g;
+
+            temp_commutator(0,0) = h * 2 * b;
+            temp_commutator(0,1) = h * (X_other(0,0) - X_other(1,1));
+            temp_commutator(1,0) = temp_commutator(0,1); 
+            temp_commutator(1,1) = - temp_commutator(0,0);  
+            
+            commutator_sum += temp_commutator;
+            
+        }   
+    }
+    return commutator_sum;
+
+}
 
 int main() 
 {
@@ -105,43 +136,20 @@ int main()
 
     // Create a zero matrix in order to populate the V_vector with it.
     matrix zero_matrix = matrix::Zero(rows, cols);
-   
-    Eigen::Matrix3d test, test1, test2, test3;
-    test << 0, 0, 0, 0, 1, 0, 0, 0, 0;
 
+    matrix test_list2[2];
 
-    test1 << 1,0,0,0,0,0,0,0,0;
+    test_list2[0](0,0) = 1.0;
+    test_list2[0](0,1) = 2.0;
+    test_list2[0](1,0) = 3.0;
+    test_list2[0](1,1) = 4.0;
+    test_list2[1](0,0) = 5.0;
+    test_list2[1](0,1) = 6.0;
+    test_list2[1](1,0) = 7.0;
+    test_list2[1](1,1) = 8.0;
 
-    test2 << 3,7,7,7,7,7,7,7,6;
-
-    test3 << 3,9,9,9,9,9,99,9,6;
-
-    matrix test_old[2] = {test, test1};
-    matrix test_list2[2] = {test2, test3};
-
-for (int i = 0; i < 9; i++)
-    {
-        std::cout << std::endl << i << std::endl << std::endl;
-
-
-        std::cout << "Before; 1:" << test_old[0] << std::endl << test_old[1];
-        std::cout << std::endl << "Before; 2:" << test_list2[0] << std::endl << test_list2[1];
-
-        test_list2[0] = test_old[0] * 10.0;
-        test_list2[1] = test_old[1] * 10.0;
-
-        std::memcpy(test_old, test_list2, sizeof(test_list2));  
-/*
-    for (int i = 0; i < 9; i++)
-    {
-        test_list1[i] = test_list2[i]
-    }
-*/
-
-        std::cout << std::endl << "After; 1:" << test_old[0] << std::endl << test_old[1];
-        std::cout << std::endl << "After; 2:" << test_list2[0] << std::endl << test_list2[1];
-    }
-    
+    std::cout << "\n" << "Correct A" <<  Acceleration2(0, test_list2, 2, 2);
+    std::cout << "\n" << "Equals A?" << Acceleration(0, test_list2, 2, 2);
 
    
     return 0;

@@ -156,34 +156,6 @@ matrix Acceleration(const int j, matrix* X_vector, int rows, int cols, const dou
     return commutator_sum;
 }
 
-// Acceleration of each coordinate matrix
-matrix Acceleration2(const int i, matrix* X_vector, int rows, int cols, const double g)
-{
-    matrix commutator_sum = matrix::Zero(rows, cols);
-    matrix temp_commutator = matrix::Zero(rows, cols);
-
-    matrix X = X_vector[i];
-    double b = X(0,1);
-    double a = X(0,0);
-    for (int j = 0; j < dim; ++j)
-    {
-        if (i != j)
-        {  
-            matrix X_other = X_vector[j];
-            double d = X_other(0,0);
-            double e = X_other(0,1);
-
-            temp_commutator(0,0) = -4 * e * e * a+4 * e* d* b;
-            temp_commutator(0,1) = 4 * d * (e * a - d * b);
-            temp_commutator(1,0) = temp_commutator(0,1); 
-            temp_commutator(1,1) = - temp_commutator(0,0);  
-            
-            commutator_sum += temp_commutator;
-        }   
-    }
-    return commutator_sum;
-}
-
 int main() 
 {
 
@@ -192,7 +164,7 @@ int main()
     matrix X_vector[dim];
     matrix V_vector[dim];
     matrix A_vector[dim];
-// For testing reproducibility use these X values
+/* For testing reproducibility use these X values
     std::ifstream inputX("initial_X.txt");
     if (!inputX.is_open()) {
         std::cerr << "Failed to open the file." << std::endl;
@@ -214,13 +186,13 @@ int main()
 
     // Close the input file
     inputX.close();
-
+*/
 
     // Generate and store X1, X2, X3, X4, X5, X6, X7, X8, and X9
-    //for (int i = 0; i < dim; ++i) 
-    //{
-    //    X_vector[i] = generateHermitianMatrix(rows, cols);
-    //}
+    for (int i = 0; i < dim; ++i) 
+    {
+        X_vector[i] = generateHermitianMatrix(rows, cols);
+    }
 
 
 
@@ -236,7 +208,7 @@ int main()
     // Generate and store A1, A2, A3, A4, A5, A6, A7, A8, and A9
     for (int i = 0; i < dim; ++i) 
     {
-        A_vector[i] = Acceleration2(i, X_vector, rows, cols, g);
+        A_vector[i] = Acceleration(i, X_vector, rows, cols, g);
     }  
 
 
@@ -284,7 +256,7 @@ int main()
         // Generate and store new A1, A2, A3, A4, A5, A6, A7, A8, and A9
         for (int i = 0; i < 9; ++i) 
         {
-            A_vector_new[i] = Acceleration2( i, X_vector_new, rows, cols, g);
+            A_vector_new[i] = Acceleration( i, X_vector_new, rows, cols, g);
         }  
         
         // Use Velocity Verlet 2 to get new momentums
@@ -301,41 +273,6 @@ int main()
 
         // Copy elements from X_vector_new to X_vector
         std::memcpy(A_vector, A_vector_new, sizeof(A_vector_new)); 
-
-        if (j % 5000 == 0)
-        {
-            //for (matrix el : V_vector)
-            //{
-            //    std::cout <<"Ideal " << el << std::endl;
-            //}
-            std::cout  << std::endl << gauss_law(X_vector_new[0], X_vector_new[1], X_vector_new[2], X_vector_new[3], X_vector_new[4], X_vector_new[5], X_vector_new[6], X_vector_new[7], X_vector_new[8],
-                                   V_vector_new[0], V_vector_new[1], V_vector_new[2], V_vector_new[3], V_vector_new[4], V_vector_new[5], V_vector_new[6], V_vector_new[7], V_vector_new[8]);
-
-            std::cout << std::endl;
-            std::cout << "H" << std::setprecision(15) << H(1.0, 
-                            X_vector_new[0], X_vector_new[1], X_vector_new[2], X_vector_new[3], X_vector_new[4], X_vector_new[5], X_vector_new[6], X_vector_new[7], X_vector_new[8],
-                            V_vector_new[0], V_vector_new[1], V_vector_new[2], V_vector_new[3], V_vector_new[4], V_vector_new[5], V_vector_new[6], V_vector_new[7], V_vector_new[8]);
-
-            std::cout << '\n' << A_vector_new[0];
-
-/*        
-            for ( matrix Matrix : X_vector_new)
-            {
-                X_vector_Export << Matrix << std::endl;
-            }
-
-            for ( matrix Matrix : V_vector_new)
-            {
-                V_vector_Export << Matrix << std::endl;
-            }
-
-            for ( matrix Matrix : A_vector_new)
-            {   
-                A_vector_Export << Matrix << std::endl;
-            }
-*/
-        }
-
     }
 
 
@@ -344,7 +281,7 @@ int main()
     A_vector_Export.close();
 
        // Export initial X/V/A_vector to text files to be analysed in python.
-    std:: fstream X2_vector_Export("C:/Users/robtk/DIAS-Summer-Internship/C++/D0-Branes/thermalised_X.txt", std:: ios:: out);
+    std:: fstream X2_vector_Export("C:/Users/robtk/DIAS-Summer-Internship/C++/D0-Branes/thermalised_X_test.txt", std:: ios:: out);
     X2_vector_Export << std::fixed << std::setprecision(15);
     //Print to text file
     for (matrix Matrix : X_vector_new)
@@ -353,14 +290,14 @@ int main()
     }
 
 
-    std:: fstream V2_vector_Export("C:/Users/robtk/DIAS-Summer-Internship/C++/D0-Branes/thermalised_V.txt", std:: ios:: out);
+    std:: fstream V2_vector_Export("C:/Users/robtk/DIAS-Summer-Internship/C++/D0-Branes/thermalised_V_test.txt", std:: ios:: out);
     V2_vector_Export << std::fixed << std::setprecision(15);
     for (matrix Matrix : V_vector_new)
     {
         V2_vector_Export << Matrix << std::endl;
     }
 
-    std:: fstream A2_vector_Export("C:/Users/robtk/DIAS-Summer-Internship/C++/D0-Branes/thermalised_A.txt", std:: ios:: out);
+    std:: fstream A2_vector_Export("C:/Users/robtk/DIAS-Summer-Internship/C++/D0-Branes/thermalised_A_test.txt", std:: ios:: out);
     A2_vector_Export << std::fixed << std::setprecision(15);
     // Print to text file
     for (matrix Matrix : A_vector_new)

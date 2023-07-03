@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <fstream>
 #include <cmath>
@@ -6,18 +7,19 @@
 #include <random>
 #include <complex>
 #include <vector>
-#include "eigen/Eigen/Dense"
+#include "eigen/Eigen/Dense" 
 
 // Define timestep
-const double delta_t = 1e-4;
-const double seconds_simulated = 100;
+const double delta_t = 1e-3;
+const double seconds_simulated = 1000;
 const double g = 1;
 
 // Repeat simulation for 1000 seconds.
 const int simulation_repetitions = seconds_simulated / delta_t;
 // Number of D0-Branes
 const int N = 2;
-
+const int rows = N;
+const int cols = N;
 // Dimension of space
 const int dim = 9;
 
@@ -48,7 +50,7 @@ double H(
 
     matrix X[9] = {X1,X2,X3,X4,X5,X6,X7,X8,X9}; 
 
-    matrix commutator_sum;  
+    matrix commutator_sum = matrix::Zero(rows, cols);  
     for (int i = 0; i < 9; i++)
     {
         for (int j = 0; j < 9; j++)
@@ -79,78 +81,42 @@ matrix gauss_law(
 
 
 // Acceleration of each coordinate matrix
-matrix Acceleration(const int j, matrix* X_vector, int rows, int cols, const double g)
+matrix Acceleration(const int i, matrix* X_vector, int rows, int cols, const double g)
 {
     matrix commutator_sum = matrix::Zero(rows, cols);
+    matrix temp_commutator = matrix::Zero(rows, cols);
 
-    matrix X = X_vector[j];
-    for (int i = 0; i < dim; ++i)
+    matrix X = X_vector[i];
+    double b = X(0,1);
+    double a = X(0,0);
+    for (int j = 0; j < dim; ++j)
     {
         if (i != j)
         {  
-            matrix temp_commutator = commutator(X_vector[i], commutator(X, X_vector[i]));
-            
+            matrix X_other = X_vector[j];
+            double d = X_other(0,0);
+            double e = X_other(0,1);
 
+            temp_commutator(0,0) = -4 * e * e * a+4 * e* d* b;
+            temp_commutator(0,1) = 4 * d * (e * a - d * b);
+            temp_commutator(1,0) = temp_commutator(0,1); 
+            temp_commutator(1,1) = - temp_commutator(0,0);  
+            
             commutator_sum += temp_commutator;
-            
         }   
-    // Comment out the line below to go back to the lagrangian e.q.m. With no -1/(g^2)
-    //commutator_sum = -1.0 / (g * g) * commutator_sum;
     }
     return commutator_sum;
 }
 
 
-// Acceleration of each coordinate matrix
-matrix PerturbingAcceleration(const int j, matrix* X_vector, int rows, int cols, const double g)
-{
-    matrix commutator_sum = matrix::Zero(rows, cols);
-    matrix sum_X = matrix::Zero(rows, cols);
-
-    static std::random_device rd;
-    static std::mt19937 rng{rd()}; 
-    std::normal_distribution<double> dist(0.0, 1e-8);
-
-    R_or_C c_1= 0.0; 
-    R_or_C c_2= 0.0;
-
-    matrix X = X_vector[j];
-    for (int i = 0; i < dim; ++i)
-    {
-        c_1 = dist(rng);
-        c_2 = dist(rng);
-        sum_X = matrix::Zero(rows, cols);
-
-        if (i != j)
-        {  
-            matrix temp_commutator = commutator(X_vector[i], commutator(X, X_vector[i]));
-            
-            for( int k = 0; k < dim; ++k)
-            {
-                if (k != i)
-                sum_X += X_vector[k] * X_vector[k];
-            }
-
-            matrix perturbation = 2.0 * c_1 * X + 2.0 * c_2 * anti_commutator(X, sum_X );
-
-            commutator_sum += (temp_commutator + perturbation);
-            
-        }   
-    // Comment out the line below to go back to the lagrangian e.q.m. With no -1/(g^2)
-    //commutator_sum = -1.0 / (g * g) * commutator_sum;
-    }
-    return commutator_sum;
-}
 
 
 int main() 
 {
     static std::random_device rd;
-    static std::mt19937 rng{rd()}; 
+    static std::mt19937 rng(std::time(nullptr)); 
     std::normal_distribution<double> dist(0.0, 1e-8);
 
-    const int rows = N;
-    const int cols = N;
 
     // Create  vectors to store the matrices
     matrix X1_vector[dim], X2_vector[dim];
@@ -364,6 +330,8 @@ int main()
 
 
 // Write simulation to advance the original coordinates by 1 second.
+
+
     for (int j = 0; j < 1 / delta_t; ++j)
     {
 
@@ -424,69 +392,32 @@ int main()
         for (int i = 0; i < 9; ++i)
         {
             X1_vector_new[i] = X1_vector[i] + V1_vector[i] * delta_t + 0.5 * A1_vector[i] * delta_t * delta_t;
-            X2_vector_new[i] = X2_vector[i] + V2_vector[i] * delta_t + 0.5 * A2_vector[i] * delta_t * delta_t;
-
 
         }
         // Generate and store new A1, A2, A3, A4, A5, A6, A7, A8, and A9
         for (int i = 0; i < 9; ++i) 
         {
             A1_vector_new[i] = Acceleration( i, X1_vector_new, rows, cols, g);
-            A2_vector_new[i] = Acceleration( i, X2_vector_new, rows, cols, g);
         }  
         
         // Use Velocity Verlet 2 to get new momentums
         for (int i = 0; i < 9; ++i)
         {
             V1_vector_new[i] = V1_vector[i] + 0.5 * (A1_vector_new[i] + A1_vector[i]) * delta_t;
-            V2_vector_new[i] = V2_vector[i] + 0.5 * (A2_vector_new[i] + A2_vector[i]) * delta_t;
-
         }
 
         // Copy elements from X_vector_new to X_vector
         std::memcpy(X1_vector, X1_vector_new, sizeof(X1_vector_new));  
-        std::memcpy(X2_vector, X2_vector_new, sizeof(X2_vector_new));  
 
         // Copy elements from X_vector_new to X_vector
         std::memcpy(V1_vector, V1_vector_new, sizeof(V1_vector_new)); 
-        std::memcpy(V2_vector, V2_vector_new, sizeof(V2_vector_new));  
 
         // Copy elements from X_vector_new to X_vector
         std::memcpy(A1_vector, A1_vector_new, sizeof(A1_vector_new)); 
-        std::memcpy(A2_vector, A2_vector_new, sizeof(A2_vector_new));  
 
 
 
-        //if (j % 10000 == 0)
-        //{
-            //std::cout <<std::endl << "Gauss 1 :"<< gauss_law(X1_vector_new[0], X1_vector_new[1], X1_vector_new[2], X1_vector_new[3], X1_vector_new[4], X1_vector_new[5], X1_vector_new[6], X1_vector_new[7], X1_vector_new[8],
-            //                V1_vector_new[0], V1_vector_new[1], V1_vector_new[2], V1_vector_new[3], V1_vector_new[4], V1_vector_new[5], V1_vector_new[6], V1_vector_new[7], V1_vector_new[8]);
-            //std::cout << std::endl << "Gauss 2 :" << gauss_law(X2_vector_new[0], X2_vector_new[1], X2_vector_new[2], X2_vector_new[3], X2_vector_new[4], X2_vector_new[5], X2_vector_new[6], X2_vector_new[7], X2_vector_new[8],
-            //                V2_vector_new[0], V2_vector_new[1], V2_vector_new[2], V2_vector_new[3], V2_vector_new[4], V2_vector_new[5], V2_vector_new[6], V2_vector_new[7], V2_vector_new[8]);
 
-
-            //std::cout << "X";
-            //for (matrix el : X1_vector_new)
-            //{
-            //    std::cout << std::endl << el << std::endl;
-            //}
-            //std::cout << "V";
-
-            //for (matrix el : V1_vector_new)
-            //{
-            //    std::cout << std::endl << el << std::endl;
-            //}
-            //std::cout << std::endl;
-            //std::cout << "H1 :" << std::setprecision(15) << H(1.0, 
-            //                X1_vector_new[0], X1_vector_new[1], X1_vector_new[2], X1_vector_new[3], X1_vector_new[4], X1_vector_new[5], X1_vector_new[6], X1_vector_new[7], X1_vector_new[8],
-            //                V1_vector_new[0], V1_vector_new[1], V1_vector_new[2], V1_vector_new[3], V1_vector_new[4], V1_vector_new[5], V1_vector_new[6], V1_vector_new[7], V1_vector_new[8]);
-
-            //std::cout << std::endl;
-            //std::cout << "H2 :" << std::setprecision(15) << H(1.0, 
-            //                X2_vector_new[0], X2_vector_new[1], X2_vector_new[2], X2_vector_new[3], X2_vector_new[4], X2_vector_new[5], X2_vector_new[6], X2_vector_new[7], X2_vector_new[8],
-            //                V2_vector_new[0], V2_vector_new[1], V2_vector_new[2], V2_vector_new[3], V2_vector_new[4], V2_vector_new[5], V2_vector_new[6], V2_vector_new[7], V2_vector_new[8]);
-
-        //}
 
         if (j % 1000 == 0)
         {
@@ -508,6 +439,59 @@ int main()
                 A1_vector_Export << Matrix << std::endl;
             }
 
+
+        }
+
+    }
+
+    X1_vector_Export.close();
+    V1_vector_Export.close();
+    A1_vector_Export.close();
+
+    // Write simulation to simulate system
+    for (int j = 0; j < seconds_simulated / delta_t; ++j)
+    {
+
+        // velocity Verlet 1 to get new positions from old positions, momentums and rate of change of momentums
+
+        for (int i = 0; i < 9; ++i)
+        {
+            X2_vector_new[i] = X2_vector[i] + V2_vector[i] * delta_t + 0.5 * A2_vector[i] * delta_t * delta_t;
+
+
+        }
+        // Generate and store new A1, A2, A3, A4, A5, A6, A7, A8, and A9
+        for (int i = 0; i < 9; ++i) 
+        {
+            A2_vector_new[i] = Acceleration( i, X2_vector_new, rows, cols, g);
+        }  
+        
+        // Use Velocity Verlet 2 to get new momentums
+        for (int i = 0; i < 9; ++i)
+        {
+            V2_vector_new[i] = V2_vector[i] + 0.5 * (A2_vector_new[i] + A2_vector[i]) * delta_t;
+
+        }
+
+        // Copy elements from X_vector_new to X_vector
+        std::memcpy(X2_vector, X2_vector_new, sizeof(X2_vector_new));  
+
+        // Copy elements from X_vector_new to X_vector
+        std::memcpy(V2_vector, V2_vector_new, sizeof(V2_vector_new));  
+
+        // Copy elements from X_vector_new to X_vector
+        std::memcpy(A2_vector, A2_vector_new, sizeof(A2_vector_new));  
+
+
+
+
+
+        if (j % 1000 == 0)
+        {
+            // gauss_law(X_vector_new[0], X_vector_new[1], X_vector_new[2], X_vector_new[3], X_vector_new[4], X_vector_new[5], X_vector_new[6], X_vector_new[7], X_vector_new[8],
+            //                V_vector_new[0], V_vector_new[1], V_vector_new[2], V_vector_new[3], V_vector_new[4], V_vector_new[5], V_vector_new[6], V_vector_new[7], V_vector_new[8]);
+
+
             for ( matrix Matrix : X2_vector_new)
             {
                 X2_vector_Export << Matrix << std::endl;
@@ -526,9 +510,6 @@ int main()
 
     }
 
-    X1_vector_Export.close();
-    V1_vector_Export.close();
-    A1_vector_Export.close();
 
     X2_vector_Export.close();
     V2_vector_Export.close();

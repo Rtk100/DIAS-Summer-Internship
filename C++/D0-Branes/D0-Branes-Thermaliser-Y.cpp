@@ -10,27 +10,29 @@
 
 // Define timestep
 const double delta_t = 1e-4;
-const double seconds_thermalised = 20;
-const double g = 1;
+const double seconds_thermalised = 1000;
+const double g = 0.001;
 
 // Repeat simulation for 1000 seconds.
 const int simulation_repetitions = seconds_thermalised / delta_t;
 // Number of D0-Branes
 const int N = 2;
+const int rows = N;
+const int cols = N;
 
 // Dimension of space
 const int dim = 9;
 
 typedef double R_or_C;
 typedef Eigen::Matrix<double, N, N> matrix;
-/*
-To go from real matrices to complex matrices delete the above typedefs and use these typedefs.
-And change the commented out code in generateHermitianMatrix()
 
-typedef std::complex<double> R_or_C;
-typedef Eigen:: Matrix<std::complex<double>, N, N> matrix;
+//To go from real matrices to complex matrices delete the above typedefs and use these typedefs.
+//And change the commented out code in generateHermitianMatrix()
 
-*/
+//typedef std::complex<double> R_or_C;
+//typedef Eigen:: Matrix<std::complex<double>, N, N> matrix;
+
+
 
 
 matrix commutator(matrix A, matrix B)
@@ -50,23 +52,29 @@ double H(
 
     matrix X[9] = {X1,X2,X3,X4,X5,X6,X7,X8,X9}; 
 
-    matrix commutator_sum;  
+    matrix commutator_sum = matrix::Zero(rows, cols);  
     for (int i = 0; i < 9; i++)
     {
         for (int j = 0; j < 9; j++)
         {
-            if(i == j)
-                continue;
-            commutator_sum += commutator(X[i],X[j])*commutator(X[i],X[j]); //can likely be more efficient by less function calls
+            if(i != j)
+            {
+                matrix temp_commutator = commutator(X[i],X[j]);
+                commutator_sum += temp_commutator * temp_commutator; 
+            }                
         }
     }
+
+
     R_or_C U = - 1.0 * pow(g,2)/(4.0) * commutator_sum.trace();
-    return std:: abs(T + U);
+    std::cout <<std::endl << "U"<< U<< std::endl;
+    std::cout << std::endl << "T" << T << std::endl;
+    return std::abs(T + U);
 }
 
 // Cillian's Gauss' law
 matrix gauss_law(
-    Eigen::Matrix<double, N, N> X1, matrix X2, matrix X3, matrix X4, matrix X5, matrix X6, matrix X7, matrix X8, matrix X9,
+    matrix X1, matrix X2, matrix X3, matrix X4, matrix X5, matrix X6, matrix X7, matrix X8, matrix X9,
     matrix V1, matrix V2, matrix V3, matrix V4, matrix V5, matrix V6, matrix V7, matrix V8, matrix V9)
 {
     matrix result;
@@ -83,7 +91,7 @@ matrix gauss_law(
 
 static std::random_device rd;
 
-static std::mt19937 rng{rd()}; 
+static std::mt19937 rng(std::time(nullptr)); 
 std::normal_distribution<double> dist(0.0, 0.1);
 
 matrix generateHermitianMatrix(int rows, int cols) 
@@ -95,11 +103,11 @@ matrix generateHermitianMatrix(int rows, int cols)
         for (int j = 0; j <= i; ++j) 
         {
             double element = dist(rng);
-            /* For Complex elements Uncomment this
-            double real = dist(rng);
-            double imag = dist(rng);
-            R_or_C element(real, imag);
-            */
+             //For Complex elements Uncomment this
+            //double real = dist(rng);
+            //double imag = dist(rng);
+            //R_or_C element(real, imag);
+            
 
             Matrix(i,j) = element;
             if (i != j) 
@@ -145,14 +153,12 @@ matrix Acceleration(const int j, matrix* X_vector, int rows, int cols, const dou
 
 int main() 
 {
-    const int rows = N;
-    const int cols = N;
 
     // Create  vectors to store the matrices
     matrix X_vector[dim];
     matrix V_vector[dim];
     matrix A_vector[dim];
-
+/*
     std::ifstream inputX("initial_X.txt");
     if (!inputX.is_open()) {
         std::cerr << "Failed to open the file." << std::endl;
@@ -174,15 +180,15 @@ int main()
 
     // Close the input file
     inputX.close();
+*/
 
-/*
     // Generate and store X1, X2, X3, X4, X5, X6, X7, X8, and X9
     for (int i = 0; i < dim; ++i) 
     {
         X_vector[i] = generateHermitianMatrix(rows, cols);
     }
 
-*/
+
 
     // Create a zero matrix in order to populate the V_vector with it.
     matrix zero_matrix = matrix::Zero(rows, cols);
@@ -238,7 +244,7 @@ int main()
 
         for (int i = 0; i < 9; ++i)
         {
-            X_vector_new[i] = 1.0/g * (g * X_vector[i] + g * V_vector[i] * delta_t + 0.5 * A_vector[i] * delta_t * delta_t);
+            X_vector_new[i] =  X_vector[i] + V_vector[i] * delta_t + 0.5 * A_vector[i] * delta_t * delta_t;
         }
 
         // Generate and store new A1, A2, A3, A4, A5, A6, A7, A8, and A9
@@ -250,7 +256,7 @@ int main()
         // Use Velocity Verlet 2 to get new momentums
         for (int i = 0; i < 9; ++i)
         {
-            V_vector_new[i] = 1.0/g * (g * V_vector[i] + 0.5 * (A_vector_new[i] + A_vector[i]) * delta_t);
+            V_vector_new[i] =  V_vector[i] + 0.5 * ( A_vector_new[i] + A_vector[i]) * delta_t;
         }
 
         // Copy elements from X_vector_new to X_vector
@@ -262,7 +268,7 @@ int main()
         // Copy elements from X_vector_new to X_vector
         std::memcpy(A_vector, A_vector_new, sizeof(A_vector_new)); 
 
-        if (j % 10000 == 0)
+        if (j % 500000 == 0)
         {
             //matrix gauss_law(X_vector_new[0], X_vector_new[1], X_vector_new[2], X_vector_new[3], X_vector_new[4], X_vector_new[5], X_vector_new[6], X_vector_new[7], X_vector_new[8],
             //               V_vector_new[0], V_vector_new[1], V_vector_new[2], V_vector_new[3], V_vector_new[4], V_vector_new[5], V_vector_new[6], V_vector_new[7], V_vector_new[8]);
@@ -296,7 +302,7 @@ int main()
     A_vector_Export.close();
 
        // Export initial X/V/A_vector to text files to be analysed in python.
-    std:: fstream X2_vector_Export("C:/Users/robtk/DIAS-Summer-Internship/C++/D0-Branes/thermalised_X.txt", std:: ios:: out);
+    std:: fstream X2_vector_Export("C:/Users/robtk/DIAS-Summer-Internship/C++/D0-Branes/test_X.txt", std:: ios:: out);
     X2_vector_Export << std::fixed << std::setprecision(15);
     //Print to text file
     for (matrix Matrix : X_vector_new)
@@ -305,14 +311,14 @@ int main()
     }
 
 
-    std:: fstream V2_vector_Export("C:/Users/robtk/DIAS-Summer-Internship/C++/D0-Branes/thermalised_V.txt", std:: ios:: out);
+    std:: fstream V2_vector_Export("C:/Users/robtk/DIAS-Summer-Internship/C++/D0-Branes/test_V.txt", std:: ios:: out);
     V2_vector_Export << std::fixed << std::setprecision(15);
     for (matrix Matrix : V_vector_new)
     {
         V2_vector_Export << Matrix << std::endl;
     }
 
-    std:: fstream A2_vector_Export("C:/Users/robtk/DIAS-Summer-Internship/C++/D0-Branes/thermalised_A.txt", std:: ios:: out);
+    std:: fstream A2_vector_Export("C:/Users/robtk/DIAS-Summer-Internship/C++/D0-Branes/test_A.txt", std:: ios:: out);
     A2_vector_Export << std::fixed << std::setprecision(15);
     // Print to text file
     for (matrix Matrix : A_vector_new)

@@ -9,7 +9,7 @@
 #include "eigen/Eigen/Dense"
 
 // Define timestep
-const double delta_t = 1e-4;
+const double delta_t = 1e-5;
 const double seconds_perturbed = 1;
 const double g = 1;
 
@@ -17,13 +17,17 @@ const double g = 1;
 const int simulation_repetitions = seconds_perturbed / delta_t;
 // Number of D0-Branes
 const int N = 2;
+const int rows = N;
+const int cols = N;
 
 // Dimension of space
 const int dim = 9;
 
+//typedef std::complex<double> R_or_C;
+//typedef Eigen:: Matrix<std::complex<double>, N, N> matrix;
+
 typedef double R_or_C;
 typedef Eigen:: Matrix<double, N, N> matrix;
-
 
 matrix commutator(matrix A, matrix B)
 {
@@ -36,7 +40,7 @@ matrix anti_commutator(matrix A, matrix B)
 } 
 
 static std::random_device rd;
-static std::mt19937 rng{rd()}; 
+static std::mt19937 rng(std::time(nullptr)); 
 std::normal_distribution<double> dist(0.0, 1e-8);
 
 // Cillian's Hamiltonian
@@ -50,7 +54,7 @@ double H(
 
     matrix X[9] = {X1,X2,X3,X4,X5,X6,X7,X8,X9}; 
 
-    matrix commutator_sum;  
+    matrix commutator_sum = matrix::Zero(rows, cols);  
     for (int i = 0; i < 9; i++)
     {
         for (int j = 0; j < 9; j++)
@@ -82,8 +86,6 @@ matrix PerturbingAcceleration(const int j, matrix* X_vector, int rows, int cols,
 {
     matrix commutator_sum = matrix::Zero(rows, cols);
     matrix sum_X = matrix::Zero(rows, cols);
-
-
 
     R_or_C c_1= 0.0; 
     R_or_C c_2= 0.0;
@@ -125,8 +127,6 @@ int main()
 {
 
 
-    const int rows = N;
-    const int cols = N;
 
     // Create  vectors to store the matrices
     matrix X2_vector[dim];

@@ -5,6 +5,7 @@
             "label": "C/C++: g++.exe build active file",
             "command": "C:\\MinGW\\bin\\g++.exe",
             "args": [
+                "/MTd", // Use /MDd or /MTd to define _DEBUG and allow _CrtDumpMemoryLeaks()
                 "-fdiagnostics-color=always",
                 "-g",
                 "${file}",
