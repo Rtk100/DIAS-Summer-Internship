@@ -279,23 +279,7 @@ int main()
 
         // Copy elements from X_vector_new to X_vector
         std::memcpy(A2_vector, A2_vector_new, sizeof(A2_vector_new));  
-
-        if (j % 100000 == 0)
-        {
-            //for (matrix el : V_vector)
-            //{
-            //    std::cout <<"Ideal " << el << std::endl;
-            //}
-            //std::cout  << std::endl << gauss_law(X_vector_new[0], X_vector_new[1], X_vector_new[2], X_vector_new[3], X_vector_new[4], X_vector_new[5], X_vector_new[6], X_vector_new[7], X_vector_new[8],
-            //                       V_vector_new[0], V_vector_new[1], V_vector_new[2], V_vector_new[3], V_vector_new[4], V_vector_new[5], V_vector_new[6], V_vector_new[7], V_vector_new[8]);
-
-            std::cout << std::endl;
-            std::cout << "H" << std::setprecision(15) << H(1.0, 
-                            X2_vector_new[0], X2_vector_new[1], X2_vector_new[2], X2_vector_new[3], X2_vector_new[4], X2_vector_new[5], X2_vector_new[6], X2_vector_new[7], X2_vector_new[8],
-                          V2_vector_new[0], V2_vector_new[1], V2_vector_new[2], V2_vector_new[3], V2_vector_new[4], V2_vector_new[5], V2_vector_new[6], V2_vector_new[7], V2_vector_new[8]);
-
-
-        }        
+        
 
     }
 

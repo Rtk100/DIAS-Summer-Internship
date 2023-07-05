@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <fstream>
 #include <cmath>
@@ -31,12 +30,6 @@ matrix commutator(matrix A, matrix B)
 {
     return A * B - B * A;
 } 
-
-matrix anti_commutator(matrix A, matrix B)
-{
-    return A * B + B * A;
-} 
-
 
 
 // Cillian's Hamiltonian
@@ -119,84 +112,9 @@ int main()
 
 
     // Create  vectors to store the matrices
-    matrix X1_vector[dim], X2_vector[dim];
-    matrix V1_vector[dim], V2_vector[dim];
-    matrix A1_vector[dim], A2_vector[dim];
-
-
-
-    // Generate and store X1, X2, X3, X4, X5, X6, X7, X8, and X9
-        // Create an array to store the matrices
-    // Open the text file for reading
-    std::ifstream inputX("Thermalised_X.txt");
-    if (!inputX.is_open()) {
-        std::cerr << "Failed to open the file." << std::endl;
-        return 1;
-    }
-
-    // Read the values from the file and store them in the matrices
-    for (int i = 0; i < dim; ++i) 
-    {
-
-        for (int row = 0; row < rows; ++row) 
-        {
-            for (int col = 0; col < cols; ++col) 
-            {
-                 inputX >> X1_vector[i](row, col);
-            }
-        }
-    }
-
-    // Close the input file
-    inputX.close();
-
-        // Create an array to store the matrices
-    // Open the text file for reading
-    std::ifstream inputV("Thermalised_V.txt");
-    if (!inputV.is_open()) {
-        std::cerr << "Failed to open the V file." << std::endl;
-        return 1;
-    }
-
-    // Read the values from the file and store them in the matrices
-    for (int i = 0; i < dim; ++i) 
-    {
-
-        for (int row = 0; row < rows; ++row) 
-        {
-            for (int col = 0; col < cols; ++col) 
-            {
-                 inputV >> V1_vector[i](row, col);
-            }
-        }
-    }
-
-    // Close the input file
-    inputV.close();
-
-        // Create an array to store the matrices
-    // Open the text file for reading
-    std::ifstream inputA("Thermalised_A.txt");
-    if (!inputA.is_open()) {
-        std::cerr << "Failed to open the file." << std::endl;
-        return 1;
-    }
-
-    // Read the values from the file and store them in the matrices
-    for (int i = 0; i < dim; ++i) 
-    {
-
-        for (int row = 0; row < rows; ++row) 
-        {
-            for (int col = 0; col < cols; ++col) 
-            {
-                 inputA >> A1_vector[i](row, col);
-            }
-        }
-    }
-
-    // Close the input file
-    inputA.close();
+    matrix X2_vector[dim];
+    matrix V2_vector[dim];
+    matrix A2_vector[dim];
 
     std::ifstream inputX2("perturbed_X.txt");
     if (!inputX2.is_open()) {
@@ -270,33 +188,11 @@ int main()
 
     matrix zero_matrix = matrix::Zero(rows, cols);
 
-    matrix X1_vector_new[9] = {zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix};
     matrix X2_vector_new[9] = {zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix};
-    matrix V1_vector_new[9] = {zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix};
     matrix V2_vector_new[9] = {zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix};
-    matrix A1_vector_new[9] = {zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix};
     matrix A2_vector_new[9] = {zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix};
-    
 
-
-    // Export initial X/V/A_vector to text files to be analysed in python.
-    std:: fstream X1_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/X_original_sim1.txt", std:: ios:: out);
-    X1_vector_Export << std::fixed << std::setprecision(15);
-    //Print to text file
-    for (matrix Matrix : X1_vector)
-    {
-        X1_vector_Export << Matrix << std::endl;
-    }
-
-    std:: fstream V1_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/V_original_sim1.txt", std:: ios:: out);
-    V1_vector_Export << std::fixed << std::setprecision(15);
-    for (matrix Matrix : V1_vector)
-    {
-        V1_vector_Export << Matrix << std::endl;
-    }
-
-
-    std:: fstream X2_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/X_perturbed_1_sim2.txt", std:: ios:: out);
+    std:: fstream X2_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/X_perturbed_5_sim1.txt", std:: ios:: out);
     X2_vector_Export << std::fixed << std::setprecision(15);
     //Print to text file
     for (matrix Matrix : X2_vector)
@@ -304,7 +200,7 @@ int main()
         X2_vector_Export << Matrix << std::endl;
     }
 
-    std:: fstream V2_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/V_perturbed_1_sim2.txt", std:: ios:: out);
+    std:: fstream V2_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/V_perturbed_2_sim1.txt", std:: ios:: out);
     V2_vector_Export << std::fixed << std::setprecision(15);
     for (matrix Matrix : V2_vector)
     {
@@ -312,129 +208,6 @@ int main()
     }
 
 
-
-
-
-
-// Write simulation to advance the original coordinates by 1 second.
-
-
-    for (int j = 0; j < 1 / delta_t; ++j)
-    {
-
-        // velocity Verlet 1 to get new positions from old positions, momentums and rate of change of momentums
-
-        for (int i = 0; i < 9; ++i)
-        {
-            X1_vector_new[i] = X1_vector[i] + V1_vector[i] * delta_t + 0.5 * A1_vector[i] * delta_t * delta_t;
-        }
-
-        // Generate and store new A1, A2, A3, A4, A5, A6, A7, A8, and A9
-        for (int i = 0; i < 9; ++i) 
-        {
-            A1_vector_new[i] = Acceleration( i, X1_vector_new, rows, cols, g);
-        }  
-        
-        // Use Velocity Verlet 2 to get new momentums
-        for (int i = 0; i < 9; ++i)
-        {
-            V1_vector_new[i] = V1_vector[i] + 0.5 * (A1_vector_new[i] + A1_vector[i]) * delta_t;
-
-        }
-
-        // Copy elements from X_vector_new to X_vector
-        std::memcpy(X1_vector, X1_vector_new, sizeof(X1_vector_new));  
-
-
-        // Copy elements from X_vector_new to X_vector
-        std::memcpy(V1_vector, V1_vector_new, sizeof(V1_vector_new)); 
-
-        // Copy elements from X_vector_new to X_vector
-        std::memcpy(A1_vector, A1_vector_new, sizeof(A1_vector_new)); 
-
-    }
-
-/* To see how close the two sets of coordinates are ( ~9 decimal places close)
-    for (int j = 0; j < dim; j++)
-    {
-        std::cout << std::endl <<std::fixed << std::setprecision(15)<< "X1 matrix "<< j << "="<< X1_vector[j] << std::endl;
-        std::cout << std::endl << "X2 matrix "<< j << "="<< X2_vector[j] << std::endl;
-        std::cout << std::endl << "V1 matrix "<< j << "="<< V1_vector[j] << std::endl;
-        std::cout << std::endl << "V2 matrix "<< j << "="<< V2_vector[j] << std::endl;
-        std::cout << std::endl << "A1 matrix "<< j << "="<< A1_vector[j] << std::endl;
-        std::cout << std::endl << "A2 matrix "<< j << "="<< A2_vector[j] << std::endl;
-    }
-*/
-
-
-
-
-
-    // Write simulation to simulate system
-    for (int j = 0; j < seconds_simulated / delta_t; ++j)
-    {
-
-        // velocity Verlet 1 to get new positions from old positions, momentums and rate of change of momentums
-
-        for (int i = 0; i < 9; ++i)
-        {
-            X1_vector_new[i] = X1_vector[i] + V1_vector[i] * delta_t + 0.5 * A1_vector[i] * delta_t * delta_t;
-
-        }
-        // Generate and store new A1, A2, A3, A4, A5, A6, A7, A8, and A9
-        for (int i = 0; i < 9; ++i) 
-        {
-            A1_vector_new[i] = Acceleration( i, X1_vector_new, rows, cols, g);
-        }  
-        
-        // Use Velocity Verlet 2 to get new momentums
-        for (int i = 0; i < 9; ++i)
-        {
-            V1_vector_new[i] = V1_vector[i] + 0.5 * (A1_vector_new[i] + A1_vector[i]) * delta_t;
-        }
-
-        // Copy elements from X_vector_new to X_vector
-        std::memcpy(X1_vector, X1_vector_new, sizeof(X1_vector_new));  
-
-        // Copy elements from X_vector_new to X_vector
-        std::memcpy(V1_vector, V1_vector_new, sizeof(V1_vector_new)); 
-
-        // Copy elements from X_vector_new to X_vector
-        std::memcpy(A1_vector, A1_vector_new, sizeof(A1_vector_new)); 
-
-
-
-        if (j % 10000000 == 0)
-        {
-            std::cout << '\n' << "H" << std::setprecision(15) << H(1.0, 
-                            X1_vector_new[0], X1_vector_new[1], X1_vector_new[2], X1_vector_new[3], X1_vector_new[4], X1_vector_new[5], X1_vector_new[6], X1_vector_new[7], X1_vector_new[8],
-                          V1_vector_new[0], V1_vector_new[1], V1_vector_new[2], V1_vector_new[3], V1_vector_new[4], V1_vector_new[5], V1_vector_new[6], V1_vector_new[7], V1_vector_new[8]);
-        }
-
-        if (j % 1000 == 0)
-        {
-            // gauss_law(X_vector_new[0], X_vector_new[1], X_vector_new[2], X_vector_new[3], X_vector_new[4], X_vector_new[5], X_vector_new[6], X_vector_new[7], X_vector_new[8],
-            //                V_vector_new[0], V_vector_new[1], V_vector_new[2], V_vector_new[3], V_vector_new[4], V_vector_new[5], V_vector_new[6], V_vector_new[7], V_vector_new[8]);
-
-            for ( matrix Matrix : X1_vector_new)
-            {
-                X1_vector_Export << Matrix << std::endl;
-            }
-
-            for ( matrix Matrix : V1_vector_new)
-            {
-                V1_vector_Export << Matrix << std::endl;
-            }
-
-
-
-
-        }
-
-    }
-
-    X1_vector_Export.close();
-    V1_vector_Export.close();
 
     // Write simulation to simulate system
     for (int j = 0; j < seconds_simulated / delta_t; ++j)

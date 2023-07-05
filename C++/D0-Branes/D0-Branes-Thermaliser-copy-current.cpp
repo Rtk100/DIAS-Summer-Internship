@@ -10,7 +10,7 @@
 
 // Define timestep
 const double delta_t = 1e-4;
-const double seconds_thermalised = 20;
+const double seconds_thermalised = 100;
 const double g = 1;
 
 // Repeat simulation for 1000 seconds.
@@ -206,30 +206,7 @@ int main()
     }  
 
 
-    // Export initial X/V/A_vector to text files to be analysed in python.
 
-    std:: fstream X_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/X_vector_test4.txt", std:: ios:: out);
-    X_vector_Export << std::fixed << std::setprecision(15);
-    //Print to text file
-    for (matrix Matrix : X_vector)
-        {
-            X_vector_Export << Matrix << std::endl;
-        }
-
-    std:: fstream V_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/V_vector_test4.txt", std:: ios:: out);
-    V_vector_Export << std::fixed << std::setprecision(15);
-    for (matrix Matrix : V_vector)
-        {
-            V_vector_Export << Matrix << std::endl;
-        }
-
-    std:: fstream A_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/A_vector_test4.txt", std:: ios:: out);
-    A_vector_Export << std::fixed << std::setprecision(15);
-    // Print to text file
-    for (matrix Matrix : A_vector)
-    {
-        A_vector_Export << Matrix << std::endl;
-    }
 
     // Create  vectors to store the new matrices
     matrix X_vector_new[9] = {zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix};
@@ -268,35 +245,18 @@ int main()
         // Copy elements from X_vector_new to X_vector
         std::memcpy(A_vector, A_vector_new, sizeof(A_vector_new)); 
 
-        if (j % 50000 == 0)
+        if (j % 500000 == 0)
         {
+            std::cout << '\n' << "H" << std::setprecision(15) << H(1.0,
+                X_vector_new[0], X_vector_new[1], X_vector_new[2], X_vector_new[3], X_vector_new[4], X_vector_new[5], X_vector_new[6], X_vector_new[7], X_vector_new[8],
+                V_vector_new[0], V_vector_new[1], V_vector_new[2], V_vector_new[3], V_vector_new[4], V_vector_new[5], V_vector_new[6], V_vector_new[7], V_vector_new[8]);
 
-
-            for ( matrix Matrix : X_vector_new)
-            {
-                X_vector_Export << Matrix << std::endl;
-            }
-
-            for ( matrix Matrix : V_vector_new)
-            {
-                V_vector_Export << Matrix << std::endl;
-            }
-
-            for ( matrix Matrix : A_vector_new)
-            {   
-                A_vector_Export << Matrix << std::endl;
-            }
         }
 
     }
 
-
-    X_vector_Export.close();
-    V_vector_Export.close();
-    A_vector_Export.close();
-
        // Export initial X/V/A_vector to text files to be analysed in python.
-    std:: fstream X2_vector_Export("C:/Users/robtk/DIAS-Summer-Internship/C++/D0-Branes/thermalised_X.txt", std:: ios:: out);
+    std:: fstream X2_vector_Export("C:/Users/robtk/DIAS-Summer-Internship/C++/D0-Branes/test_thermalised_X.txt", std:: ios:: out);
     X2_vector_Export << std::fixed << std::setprecision(15);
     //Print to text file
     for (matrix Matrix : X_vector_new)
@@ -305,14 +265,14 @@ int main()
     }
 
 
-    std:: fstream V2_vector_Export("C:/Users/robtk/DIAS-Summer-Internship/C++/D0-Branes/thermalised_V.txt", std:: ios:: out);
+    std:: fstream V2_vector_Export("C:/Users/robtk/DIAS-Summer-Internship/C++/D0-Branes/test_thermalised_V.txt", std:: ios:: out);
     V2_vector_Export << std::fixed << std::setprecision(15);
     for (matrix Matrix : V_vector_new)
     {
         V2_vector_Export << Matrix << std::endl;
     }
 
-    std:: fstream A2_vector_Export("C:/Users/robtk/DIAS-Summer-Internship/C++/D0-Branes/thermalised_A.txt", std:: ios:: out);
+    std:: fstream A2_vector_Export("C:/Users/robtk/DIAS-Summer-Internship/C++/D0-Branes/test_thermalised_A.txt", std:: ios:: out);
     A2_vector_Export << std::fixed << std::setprecision(15);
     // Print to text file
     for (matrix Matrix : A_vector_new)

@@ -9,8 +9,8 @@
 #include "eigen/Eigen/Dense"
 
 // Define timestep
-const double delta_t = 1e-4;
-const double seconds_thermalised = 1000;
+const double delta_t = 1e-5;
+const double seconds_thermalised = 10;
 const double g = 1;
 
 // Repeat simulation for 1000 seconds.
@@ -135,6 +135,28 @@ matrix generateHermitianMatrix(int rows, int cols)
 
 
 // Acceleration of each coordinate matrix
+matrix Acceleration(const int j, matrix* X_vector, int rows, int cols, const double g)
+{
+    matrix commutator_sum = matrix::Zero(rows, cols);
+
+    matrix X = X_vector[j];
+    for (int i = 0; i < dim; ++i)
+    {
+        if (i != j)
+        {
+            matrix temp_commutator = commutator(X_vector[i], commutator(X, X_vector[i]));
+
+
+            commutator_sum += temp_commutator;
+
+        }
+        // Comment out the line below to go back to the lagrangian e.q.m. With no -1/(g^2)
+        // commutator_sum = -1.0 / (g * g) * commutator_sum;
+    }
+    return commutator_sum;
+}
+
+// Acceleration of each coordinate matrix
 matrix Acceleration2(const double aX, const double bX, const double a1, const double b1, const double a2, const double b2, 
     const double a3, const double b3, const double a4, const double b4, const double a5, const double b5, const double a6, const double b6, 
     const double a7, const double b7, const double a8, const double b8, const double g)
@@ -142,13 +164,13 @@ matrix Acceleration2(const double aX, const double bX, const double a1, const do
     matrix commutator_sum = matrix::Zero(rows, cols);
     matrix temp_commutator = matrix::Zero(rows, cols);
 
-    double matrix_entries[16] = { a1, b1, a2, b2, a3,  b3, a4, b4, a5, b5, a6, b6, a7, b7, a8, b8 };
+    double matrix_entries[16] = { a1, b1, a2,   b2, a3,   b3,   a4,   b4,   a5,   b5,   a6,  b6, a7,  b7,  a8,  b8 };
 
     for (int j = 0; j < dim-1; ++j)
     {
 
-        temp_commutator(0, 0) = -4 * matrix_entries[2 * j + 1] * matrix_entries[2 * j + 1] * aX + 4 * matrix_entries[2 * j + 1] * matrix_entries[2 * j] * bX;
-        temp_commutator(0, 1) = 4 * matrix_entries[2 * j] * (matrix_entries[2 * j + 1] * aX - matrix_entries[2 * j] * bX);
+        temp_commutator(0, 0) = -4 * matrix_entries[j + 1] * matrix_entries[j + 1] * aX + 4 * matrix_entries[j + 1] * matrix_entries[j] * bX;
+        temp_commutator(0, 1) = 4 * matrix_entries[j] * (matrix_entries[j + 1] * aX - matrix_entries[j] * bX);
         temp_commutator(1, 0) = temp_commutator(0, 1);
         temp_commutator(1, 1) = -temp_commutator(0, 0);
 
@@ -167,7 +189,7 @@ int main()
     matrix V_vector[dim];
     matrix A_vector[dim];
 
-    
+    /*
     // For testing reproducibility use these X values
         std::ifstream inputX("initial_X.txt");
         if (!inputX.is_open()) {
@@ -190,13 +212,13 @@ int main()
 
         // Close the input file
         inputX.close();
-    
+    */
 
     // Generate and store X1, X2, X3, X4, X5, X6, X7, X8, and X9
-    //for (int i = 0; i < dim; ++i)
-    //{
-    //    X_vector[i] = generateHermitianMatrix(rows, cols);
-    //}
+    for (int i = 0; i < dim; ++i)
+    {
+        X_vector[i] = generateHermitianMatrix(rows, cols);
+    }
 
 
 
@@ -242,7 +264,30 @@ int main()
 
 
 
+    // Export initial X/V/A_vector to text files to be analysed in python.
 
+    std::fstream X_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/X_vector_test4.txt", std::ios::out);
+    X_vector_Export << std::fixed << std::setprecision(15);
+    //Print to text file
+    for (matrix Matrix : X_vector)
+    {
+        X_vector_Export << Matrix << std::endl;
+    }
+
+    std::fstream V_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/V_vector_test4.txt", std::ios::out);
+    V_vector_Export << std::fixed << std::setprecision(15);
+    for (matrix Matrix : V_vector)
+    {
+        V_vector_Export << Matrix << std::endl;
+    }
+
+    std::fstream A_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/A_vector_test4.txt", std::ios::out);
+    A_vector_Export << std::fixed << std::setprecision(15);
+    // Print to text file
+    for (matrix Matrix : A_vector)
+    {
+        A_vector_Export << Matrix << std::endl;
+    }
 
     // Create  vectors to store the new matrices
     matrix X_vector_new[9] = { zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix };
@@ -306,20 +351,47 @@ int main()
         // Copy elements from X_vector_new to X_vector
         std::memcpy(A_vector, A_vector_new, sizeof(A_vector_new));
 
-        if (j % 500000 == 0)
+        if (j % 10000 == 0)
         {
-            std::cout << '\n' << "H" << std::setprecision(15) << H(1.0,
+            //for (matrix el : V_vector)
+            //{
+            //    std::cout <<"Ideal " << el << std::endl;
+            //}
+            //std::cout  << std::endl << gauss_law(X_vector_new[0], X_vector_new[1], X_vector_new[2], X_vector_new[3], X_vector_new[4], X_vector_new[5], X_vector_new[6], X_vector_new[7], X_vector_new[8],
+            //                       V_vector_new[0], V_vector_new[1], V_vector_new[2], V_vector_new[3], V_vector_new[4], V_vector_new[5], V_vector_new[6], V_vector_new[7], V_vector_new[8]);
+
+            std::cout << std::endl;
+            std::cout << "H" << std::setprecision(15) << H(1.0,
                 X_vector_new[0], X_vector_new[1], X_vector_new[2], X_vector_new[3], X_vector_new[4], X_vector_new[5], X_vector_new[6], X_vector_new[7], X_vector_new[8],
                 V_vector_new[0], V_vector_new[1], V_vector_new[2], V_vector_new[3], V_vector_new[4], V_vector_new[5], V_vector_new[6], V_vector_new[7], V_vector_new[8]);
 
+            /*
+                        for ( matrix Matrix : X_vector_new)
+                        {
+                            X_vector_Export << Matrix << std::endl;
+                        }
 
+                        for ( matrix Matrix : V_vector_new)
+                        {
+                            V_vector_Export << Matrix << std::endl;
+                        }
+
+                        for ( matrix Matrix : A_vector_new)
+                        {
+                            A_vector_Export << Matrix << std::endl;
+                        }
+            */
         }
 
     }
 
 
+    X_vector_Export.close();
+    V_vector_Export.close();
+    A_vector_Export.close();
+
     // Export initial X/V/A_vector to text files to be analysed in python.
-    std::fstream X2_vector_Export("C:/Users/robtk/DIAS-Summer-Internship/C++/D0-Branes/test_this_thermalised_X.txt", std::ios::out);
+    std::fstream X2_vector_Export("C:/Users/robtk/DIAS-Summer-Internship/C++/D0-Branes/thermalised_X.txt", std::ios::out);
     X2_vector_Export << std::fixed << std::setprecision(15);
     //Print to text file
     for (matrix Matrix : X_vector_new)
@@ -328,14 +400,14 @@ int main()
     }
 
 
-    std::fstream V2_vector_Export("C:/Users/robtk/DIAS-Summer-Internship/C++/D0-Branes/test_this_thermalised_V.txt", std::ios::out);
+    std::fstream V2_vector_Export("C:/Users/robtk/DIAS-Summer-Internship/C++/D0-Branes/thermalised_V.txt", std::ios::out);
     V2_vector_Export << std::fixed << std::setprecision(15);
     for (matrix Matrix : V_vector_new)
     {
         V2_vector_Export << Matrix << std::endl;
     }
 
-    std::fstream A2_vector_Export("C:/Users/robtk/DIAS-Summer-Internship/C++/D0-Branes/test_this_thermalised_A.txt", std::ios::out);
+    std::fstream A2_vector_Export("C:/Users/robtk/DIAS-Summer-Internship/C++/D0-Branes/thermalised_A.txt", std::ios::out);
     A2_vector_Export << std::fixed << std::setprecision(15);
     // Print to text file
     for (matrix Matrix : A_vector_new)
