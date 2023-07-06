@@ -1,9 +1,20 @@
 #include <iostream>
 
-using namespace std;
+double acceleration(int j, double h)
+{   
+    double F;
+    F += h;
+    F += j;
+    return F;
+}
 int main() {
 
-    cout << "Helloo World!";
+    for (int j = 0;j < 3 ; ++j)
+    {
+        std::cout << "j"<<j<<'\n'<<"F" << acceleration(j, -1.0);
+
+    }
+
     return 0;
 }
 

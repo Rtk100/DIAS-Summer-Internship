@@ -46,7 +46,7 @@ double H(
     matrix V1, matrix V2, matrix V3, matrix V4, matrix V5, matrix V6, matrix V7, matrix V8, matrix V9)
 {
     // Compute kinetic energy T
-    R_or_C T = 1.0/(2.0*pow(g,2)) * (V1*V1 + V2*V2 + V3*V3 + V4*V4 + V5*V5 + V6*V6 + V7*V7 + V8*V8 + V9*V9).trace();
+    R_or_C T = 1.0/(2.0) * (V1*V1 + V2*V2 + V3*V3 + V4*V4 + V5*V5 + V6*V6 + V7*V7 + V8*V8 + V9*V9).trace();
 
     matrix X[9] = {X1,X2,X3,X4,X5,X6,X7,X8,X9}; 
 
@@ -60,7 +60,7 @@ double H(
             commutator_sum += commutator(X[i],X[j])*commutator(X[i],X[j]); //can likely be more efficient by less function calls
         }
     }
-    R_or_C U = - 1.0/(4.0*pow(g,2)) * commutator_sum.trace();
+    R_or_C U = - g * g * 1.0/(4.0) * commutator_sum.trace();
     return std:: abs(T + U);
 }
 
@@ -105,7 +105,7 @@ matrix Acceleration(const int i, matrix* X_vector, int rows, int cols, const dou
             commutator_sum += temp_commutator;
         }   
     }
-    return commutator_sum;
+    return g * g * commutator_sum;
 }
 
 

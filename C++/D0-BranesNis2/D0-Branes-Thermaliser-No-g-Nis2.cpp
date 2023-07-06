@@ -10,7 +10,7 @@
 
 // Define timestep
 const double delta_t = 1e-4;
-const double seconds_thermalised = 1000;
+const double seconds_thermalised = 10;
 const double g = 1;
 
 // Repeat simulation for 1000 seconds.
@@ -173,10 +173,13 @@ matrix Acceleration2(const int i, matrix* X_vector, int rows, int cols, const do
             double d = X_other(0,0);
             double e = X_other(0,1);
 
-            temp_commutator(0,0) = -4 * e * e * a+4 * e* d* b;
-            temp_commutator(0,1) = 4 * d * (e * a - d * b);
-            temp_commutator(1,0) = temp_commutator(0,1); 
-            temp_commutator(1,1) = - temp_commutator(0,0);  
+            double zero_zero_entry = -4*e*e*a + 4*e*d*b;
+            double zero_one_entry = 4*d * (e*a - d*b);
+
+            temp_commutator(0,0) = zero_zero_entry;
+            temp_commutator(0,1) = zero_one_entry;
+            temp_commutator(1,0) = zero_one_entry; 
+            temp_commutator(1,1) = - zero_zero_entry;  
             
             commutator_sum += temp_commutator;
         }   
@@ -196,11 +199,11 @@ int main()
     // Create a zero matrix in order to populate the V_vector with it.
     matrix zero_matrix = matrix::Zero(rows, cols);
 
-/*
+
 // For testing reproducibility use these X values
     std::ifstream inputX("initial_X.txt");
     if (!inputX.is_open()) {
-        std::cerr << "Failed to open the file." << std::endl;
+        std::cerr << "Failed to open X initial file." << std::endl;
         return 1;
     }
 
@@ -219,14 +222,14 @@ int main()
 
     // Close the input file
     inputX.close();
-*/
 
+/*
     // Generate and store X1, X2, X3, X4, X5, X6, X7, X8, and X9
     for (int i = 0; i < dim; ++i) 
     {
         X_vector[i] = generateHermitianMatrix(rows, cols);
     }
-
+*/
 
 
 
@@ -303,7 +306,7 @@ int main()
 
 
        // Export initial X/V/A_vector to text files to be analysed in python.
-    std:: fstream X2_vector_Export("C:/Users/robtk/DIAS-Summer-Internship/C++/D0-Branes/thermalised_X.txt", std:: ios:: out);
+    std:: fstream X2_vector_Export("C:/Users/robtk/DIAS-Summer-Internship/C++/D0-BranesNis2/thermalised_X.txt", std:: ios:: out);
     X2_vector_Export << std::fixed << std::setprecision(15);
     //Print to text file
     for (matrix Matrix : X_vector_new)
@@ -312,14 +315,14 @@ int main()
     }
 
 
-    std:: fstream V2_vector_Export("C:/Users/robtk/DIAS-Summer-Internship/C++/D0-Branes/thermalised_V.txt", std:: ios:: out);
+    std:: fstream V2_vector_Export("C:/Users/robtk/DIAS-Summer-Internship/C++/D0-BranesNis2/thermalised_V.txt", std:: ios:: out);
     V2_vector_Export << std::fixed << std::setprecision(15);
     for (matrix Matrix : V_vector_new)
     {
         V2_vector_Export << Matrix << std::endl;
     }
 
-    std:: fstream A2_vector_Export("C:/Users/robtk/DIAS-Summer-Internship/C++/D0-Branes/thermalised_A.txt", std:: ios:: out);
+    std:: fstream A2_vector_Export("C:/Users/robtk/DIAS-Summer-Internship/C++/D0-BranesNis2/thermalised_A.txt", std:: ios:: out);
     A2_vector_Export << std::fixed << std::setprecision(15);
     // Print to text file
     for (matrix Matrix : A_vector_new)

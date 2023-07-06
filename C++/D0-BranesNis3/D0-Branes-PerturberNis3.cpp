@@ -50,7 +50,7 @@ double H(
     matrix V1, matrix V2, matrix V3, matrix V4, matrix V5, matrix V6, matrix V7, matrix V8, matrix V9)
 {
     // Compute kinetic energy T
-    R_or_C T = 1.0/(2.0*pow(g,2)) * (V1*V1 + V2*V2 + V3*V3 + V4*V4 + V5*V5 + V6*V6 + V7*V7 + V8*V8 + V9*V9).trace();
+    R_or_C T = 1.0/(2.0) * (V1*V1 + V2*V2 + V3*V3 + V4*V4 + V5*V5 + V6*V6 + V7*V7 + V8*V8 + V9*V9).trace();
 
     matrix X[9] = {X1,X2,X3,X4,X5,X6,X7,X8,X9}; 
 
@@ -64,7 +64,7 @@ double H(
             commutator_sum += commutator(X[i],X[j])*commutator(X[i],X[j]); //can likely be more efficient by less function calls
         }
     }
-    R_or_C U = - 1.0/(4.0*pow(g,2)) * commutator_sum.trace();
+    R_or_C U = - g * g * 1.0/(4.0) * commutator_sum.trace();
     return std:: abs(T + U);
 }
 
@@ -95,6 +95,14 @@ matrix PerturbingAcceleration(const int i, matrix* X_vector, int rows, int cols,
     double b = X(1,1);
     double a = X(0,0);
 
+    // The below 6 lines are doing the perturbing.
+    for( int k = 0; k < dim; k++)
+    {
+        sum_X += X_vector[k] * X_vector[k];
+    }
+    matrix perturbation = 2.0 * c_1 * X + 2.0 * g * g *  c_2 * anti_commutator(X, sum_X );
+    commutator_sum += perturbation;
+
     for (int j = 0; j < dim; j++)
     {
 
@@ -120,16 +128,7 @@ matrix PerturbingAcceleration(const int i, matrix* X_vector, int rows, int cols,
  
             temp_commutator(2,2) = - temp_commutator(0,0) - temp_commutator(1,1);  
 
-            for( int k = 0; k < dim; k++)
-            {
-              sum_X += X_vector[k] * X_vector[k];
-            }
-            
-            matrix perturbation = 2.0 * c_1 * X + 2.0 * c_2 * anti_commutator(X, sum_X );
-
-            commutator_sum += (temp_commutator + perturbation);
-
-
+            commutator_sum += g * g * temp_commutator;
         }   
 
     // Comment out the line below to go back to the lagrangian e.q.m. With no -1/(g^2)

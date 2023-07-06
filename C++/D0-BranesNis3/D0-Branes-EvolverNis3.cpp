@@ -41,7 +41,7 @@ double H(
     matrix V1, matrix V2, matrix V3, matrix V4, matrix V5, matrix V6, matrix V7, matrix V8, matrix V9)
 {
     // Compute kinetic energy T
-    R_or_C T = 1.0/(2.0*pow(g,2)) * (V1*V1 + V2*V2 + V3*V3 + V4*V4 + V5*V5 + V6*V6 + V7*V7 + V8*V8 + V9*V9).trace();
+    R_or_C T = 1.0/(2.0) * (V1*V1 + V2*V2 + V3*V3 + V4*V4 + V5*V5 + V6*V6 + V7*V7 + V8*V8 + V9*V9).trace();
 
     matrix X[9] = {X1,X2,X3,X4,X5,X6,X7,X8,X9}; 
 
@@ -55,7 +55,7 @@ double H(
             commutator_sum += commutator(X[i],X[j])*commutator(X[i],X[j]); //can likely be more efficient by less function calls
         }
     }
-    R_or_C U = - 1.0/(4.0*pow(g,2)) * commutator_sum.trace();
+    R_or_C U = - g * g * 1.0/(4.0) * commutator_sum.trace();
     return std:: abs(T + U);
 }
 
@@ -72,6 +72,8 @@ matrix gauss_law(
     }
     return result;
 }
+
+
 
 
 
@@ -98,21 +100,27 @@ matrix Acceleration(const int i, matrix* X_vector, int rows, int cols, const dou
             double i = X_other(0,2);
             double j = X_other(1,2);
 
-            temp_commutator(0,0) = -2*a*h*h + 2*b*h*h + 4*e*i*h - 2*d*j*h + 2*c*f*h - 2*c*h*g - 4*a*i*i - 2*b*i*i - 2*c*i*j + 4*d*i*f + 2*d*i*g;
-            temp_commutator(1,1) = 2*a*h*h - 2*b*h*h - 2*e*i*h + 4*d*j*h - 2*c*f*h + 2*c*h*g - 2*a*j*j - 4*b*j*j - 2*c*i*j + 2*e*j*f + 4*e*j*g;
-            temp_commutator(0,1) = -c*f*f + 3*d*j*f + a*f*h - b*f*h + 2*c*f*g - c*i*i - c*j*j - 3*a*i*j - 3*b*i*j + d*i*h + e*j*h - c*g*g + 3*e*i*g - a*h*g + b*h*g;
-            temp_commutator(0,2) = -4*d*f*f + 4*a*i*f + 2*b*i*f + 3*c*j*f - 3*e*f*h - 4*d*f*g - d*j*j + e*i*j - d*h*h + c*i*h + 3*b*j*h - d*g*g - 3*e*h*g + 2*a*i*g + b*i*g;
-            temp_commutator(1,2) = -4*e*g*g + 3*c*i*g + 2*a*j*g + 4*b*j*g - 4*e*f*g - 3*d*h*g - e*i*i + d*i*j - e*f*f + a*j*f + 2*b*j*f - e*h*h + 3*a*i*h + c*j*h - 3*d*f*h;
+            double zero_zero_entry = -2*a*h*h + 2*b*h*h + 4*e*i*h - 2*d*j*h + 2*c*f*h - 2*c*h*g - 4*a*i*i - 2*b*i*i - 2*c*i*j + 4*d*i*f + 2*d*i*g;
+            double one_one_entry = 2*a*h*h - 2*b*h*h - 2*e*i*h + 4*d*j*h - 2*c*f*h + 2*c*h*g - 2*a*j*j - 4*b*j*j - 2*c*i*j + 2*e*j*f + 4*e*j*g;
+            double zero_one_entry = -c*f*f + 3*d*j*f + a*f*h - b*f*h + 2*c*f*g - c*i*i - c*j*j - 3*a*i*j - 3*b*i*j + d*i*h + e*j*h - c*g*g + 3*e*i*g - a*h*g + b*h*g; 
+            double zero_two_entry = -4*d*f*f + 4*a*i*f + 2*b*i*f + 3*c*j*f - 3*e*f*h - 4*d*f*g - d*j*j + e*i*j - d*h*h + c*i*h + 3*b*j*h - d*g*g - 3*e*h*g + 2*a*i*g + b*i*g; 
+            double one_two_entry = -4*e*g*g + 3*c*i*g + 2*a*j*g + 4*b*j*g - 4*e*f*g - 3*d*h*g - e*i*i + d*i*j - e*f*f + a*j*f + 2*b*j*f - e*h*h + 3*a*i*h + c*j*h - 3*d*f*h;
+
+            temp_commutator(0,0) = zero_zero_entry;
+            temp_commutator(1,1) = one_one_entry;
+            temp_commutator(0,1) = zero_one_entry;
+            temp_commutator(0,2) = zero_two_entry;
+            temp_commutator(1,2) = one_two_entry;
             temp_commutator(1,0) = temp_commutator(0,1);
             temp_commutator(2,0) = temp_commutator(0,2); 
             temp_commutator(2,1) = temp_commutator(1,2); 
  
-            temp_commutator(2,2) = - temp_commutator(0,0) - temp_commutator(1,1);  
+            temp_commutator(2,2) = - zero_zero_entry - one_one_entry;  
             
             commutator_sum += temp_commutator;
         }   
     }
-    return commutator_sum;
+    return g * g * commutator_sum;
 }
 
 

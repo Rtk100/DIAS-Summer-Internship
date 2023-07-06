@@ -15,11 +15,12 @@
 const double delta_t = 1e-4;
 const double seconds_thermalised = 20;
 const double g = 1;
+const double sigma = 0.1;
 
 // Repeat simulation for 1000 seconds.
 const int simulation_repetitions = seconds_thermalised / delta_t;
 // Number of D0-Branes
-const int N = 3;
+const int N = 2;
 const int rows = N;
 const int cols = N;
 
@@ -96,7 +97,7 @@ matrix gauss_law(
 static std::random_device rd;
 
 static std::mt19937 rng(std::time(nullptr)); 
-std::normal_distribution<double> dist(0.0, 1);
+std::normal_distribution<double> dist(0.0, sigma);
 
 matrix generateHermitianMatrix(int rows, int cols) 
 {   
@@ -145,7 +146,7 @@ int main()
         X_vector[i] = generateHermitianMatrix(rows, cols);
     }
 
-    std:: fstream X_vector_Export("C:/Users/robtk/DIAS-Summer-Internship/C++/D0-Branes/initial_X.txt", std:: ios:: out);
+    std:: fstream X_vector_Export("C:/Users/robtk/DIAS-Summer-Internship/C++/D0-BranesNis2/initial_X.txt", std:: ios:: out);
     X_vector_Export << std::fixed << std::setprecision(15);
     //Print to text file
     for (matrix Matrix : X_vector)

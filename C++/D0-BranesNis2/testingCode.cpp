@@ -13,6 +13,8 @@ const double delta_t = 10e-5;
 // Repeat simulation for 1000 seconds.
 const int simulation_repetitions = 1000 / delta_t;
 const int N = 2;
+const int rows = N;
+const int cols = N;
 
 typedef Eigen::Matrix<double, N, N> matrix;
 
@@ -109,49 +111,18 @@ matrix Acceleration2(const int i, matrix* X_vector, int rows, int cols)
 
 int main() 
 {
-    for (int i = 0; i < 9; ++i)
-    {
-        std::cout << i;
-    }
-
-    for (int i = 0; i < 9; i++)
-    {
-        std::cout << i;
-    }
-    const int rows = 3;
-    const int cols = 3;
-
-    // Create  vectors to store the matrices
-    std::vector<matrix> X_vector;
-    std::vector<matrix> V_vector;
-    std::vector<matrix> A_vector;
-
-
-    // Generate and store X1, X2, X3, X4, X5, X6, X7, X8, and X9
-    for (int i = 0; i < 9; ++i) 
-    {   
-        
-        X_vector.push_back(generateHermitianMatrix(rows, cols));
-    }
-
+    
+ 
     // Create a zero matrix in order to populate the V_vector with it.
     matrix zero_matrix = matrix::Zero(rows, cols);
 
-    matrix test_list2[2];
+    matrix test << 1,2,1,2;
+    matrix teset << 2,2,2,2;
 
-    test_list2[0](0,0) = 1.0;
-    test_list2[0](0,1) = 2.0;
-    test_list2[0](1,0) = 3.0;
-    test_list2[0](1,1) = 4.0;
-    test_list2[1](0,0) = 5.0;
-    test_list2[1](0,1) = 6.0;
-    test_list2[1](1,0) = 7.0;
-    test_list2[1](1,1) = 8.0;
+    std::cout << test * pow(teset, 0);
 
-    std::cout << "\n" << "Correct A" <<  Acceleration2(0, test_list2, 2, 2);
-    std::cout << "\n" << "Equals A?" << Acceleration(0, test_list2, 2, 2);
 
-   
+
     return 0;
 
 }

@@ -39,7 +39,7 @@ double H(
     matrix V1, matrix V2, matrix V3, matrix V4, matrix V5, matrix V6, matrix V7, matrix V8, matrix V9)
 {
     // Compute kinetic energy T
-    R_or_C T = 1.0/(2.0*pow(g,2)) * (V1*V1 + V2*V2 + V3*V3 + V4*V4 + V5*V5 + V6*V6 + V7*V7 + V8*V8 + V9*V9).trace();
+    R_or_C T = 1.0/(2.0) * (V1*V1 + V2*V2 + V3*V3 + V4*V4 + V5*V5 + V6*V6 + V7*V7 + V8*V8 + V9*V9).trace();
 
     matrix X[9] = {X1,X2,X3,X4,X5,X6,X7,X8,X9}; 
 
@@ -53,7 +53,7 @@ double H(
             commutator_sum += commutator(X[i],X[j])*commutator(X[i],X[j]); //can likely be more efficient by less function calls
         }
     }
-    R_or_C U = - 1.0/(4.0*pow(g,2)) * commutator_sum.trace();
+    R_or_C U = - g * g * 1.0/(4.0) * commutator_sum.trace();
     return std:: abs(T + U);
 }
 
@@ -110,7 +110,7 @@ matrix Acceleration(const int i, matrix* X_vector, int rows, int cols, const dou
             commutator_sum += temp_commutator;
         }   
     }
-    return commutator_sum;
+    return g * g * commutator_sum;
 }
 
 
@@ -128,7 +128,7 @@ int main()
     matrix V2_vector[dim];
     matrix A2_vector[dim];
 
-    std::ifstream inputX2("perturbed_X.txt");
+    std::ifstream inputX2("perturbed_XNis3.txt");
     if (!inputX2.is_open()) {
         std::cerr << "Failed to open the file." << std::endl;
         return 1;
@@ -152,7 +152,7 @@ int main()
 
         // Create an array to store the matrices
     // Open the text file for reading
-    std::ifstream inputV2("perturbed_V.txt");
+    std::ifstream inputV2("perturbed_VNis3.txt");
     if (!inputV2.is_open()) {
         std::cerr << "Failed to open the V file." << std::endl;
         return 1;
@@ -176,7 +176,7 @@ int main()
 
         // Create an array to store the matrices
     // Open the text file for reading
-    std::ifstream inputA2("perturbed_A.txt");
+    std::ifstream inputA2("perturbed_ANis3.txt");
     if (!inputA2.is_open()) {
         std::cerr << "Failed to open the file." << std::endl;
         return 1;
@@ -204,7 +204,7 @@ int main()
     matrix V2_vector_new[9] = {zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix};
     matrix A2_vector_new[9] = {zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix};
 
-    std:: fstream X2_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/X_perturbed_2_sim1Nis3.txt", std:: ios:: out);
+    std:: fstream X2_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/X_perturbed_4_sim1Nis3.txt", std:: ios:: out);
     X2_vector_Export << std::fixed << std::setprecision(15);
     //Print to text file
     for (matrix Matrix : X2_vector)
@@ -212,7 +212,7 @@ int main()
         X2_vector_Export << Matrix << std::endl;
     }
 
-    std:: fstream V2_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/V_perturbed_2_sim1Nis3.txt", std:: ios:: out);
+    std:: fstream V2_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/V_perturbed_4_sim1Nis3.txt", std:: ios:: out);
     V2_vector_Export << std::fixed << std::setprecision(15);
     for (matrix Matrix : V2_vector)
     {
