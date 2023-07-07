@@ -10,7 +10,7 @@
 
 // Define timestep
 const double delta_t = 1e-4;
-const double seconds_simulated = 200;
+const double seconds_simulated = 10;
 const double g = 1;
 
 // Repeat simulation for 1000 seconds.
@@ -192,7 +192,7 @@ int main()
     matrix V2_vector_new[9] = {zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix};
     matrix A2_vector_new[9] = {zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix};
 
-    std:: fstream X2_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/X_perturbed_7_sim4.txt", std:: ios:: out);
+    std:: fstream X2_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/X_perturbed_1_sim5.txt", std:: ios:: out);
     X2_vector_Export << std::fixed << std::setprecision(15);
     //Print to text file
     for (matrix Matrix : X2_vector)
@@ -200,7 +200,7 @@ int main()
         X2_vector_Export << Matrix << std::endl;
     }
 
-    std:: fstream V2_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/V_perturbed_7_sim.txt", std:: ios:: out);
+    std:: fstream V2_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/V_perturbed_1_sim5.txt", std:: ios:: out);
     V2_vector_Export << std::fixed << std::setprecision(15);
     for (matrix Matrix : V2_vector)
     {
@@ -245,7 +245,7 @@ int main()
 
 
 
-        if (j % 10000000 == 0)
+        if (j % 1000 == 0)
         {
             std::cout << '\n' << "H2 :" << std::setprecision(15) << H(1.0, 
                             X2_vector_new[0], X2_vector_new[1], X2_vector_new[2], X2_vector_new[3], X2_vector_new[4], X2_vector_new[5], X2_vector_new[6], X2_vector_new[7], X2_vector_new[8],

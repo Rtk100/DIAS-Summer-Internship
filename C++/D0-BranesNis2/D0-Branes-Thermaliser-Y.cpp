@@ -5,14 +5,13 @@
 #include <iomanip>
 #include <random>
 #include <complex>
-#include <vector>
 #include "eigen/Eigen/Dense"
 
 // Define timestep
 const double delta_t = 1e-4;
-const double seconds_thermalised = 1;
-const double g = 1;
-const double sigma = 1.0;
+const double seconds_thermalised = 1000;
+const double g = 0.1;
+const double sigma = 1;
 
 // Repeat simulation for 1000 seconds.
 const int simulation_repetitions = seconds_thermalised / delta_t;

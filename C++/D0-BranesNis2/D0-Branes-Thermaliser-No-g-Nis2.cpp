@@ -283,7 +283,7 @@ int main()
         // Copy elements from X_vector_new to X_vector
         std::memcpy(A_vector, A_vector_new, sizeof(A_vector_new)); 
 
-        if (j % 100000 == 0)
+        if (j % 1000 == 0)
         {
             //for (matrix el : V_vector)
             //{
