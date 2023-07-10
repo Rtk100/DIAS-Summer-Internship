@@ -10,7 +10,7 @@
 
 // Define timestep
 const double delta_t = 1e-4;
-const double seconds_thermalised = 10;
+const double seconds_thermalised = 1;
 const double g = 1;
 
 // Repeat simulation for 1000 seconds.
@@ -242,7 +242,7 @@ int main()
     // Generate and store A1, A2, A3, A4, A5, A6, A7, A8, and A9
     for (int i = 0; i < dim; ++i) 
     {
-        A_vector[i] = Acceleration2(i, X_vector, rows, cols, g);
+        A_vector[i] = Acceleration(i, X_vector, rows, cols, g);
     }  
 
 
@@ -265,7 +265,7 @@ int main()
         // Generate and store new A1, A2, A3, A4, A5, A6, A7, A8, and A9
         for (int i = 0; i < 9; ++i) 
         {
-            A_vector_new[i] = Acceleration2( i, X_vector_new, rows, cols, g);
+            A_vector_new[i] = Acceleration( i, X_vector_new, rows, cols, g);
         }  
         
         // Use Velocity Verlet 2 to get new momentums
@@ -283,7 +283,7 @@ int main()
         // Copy elements from X_vector_new to X_vector
         std::memcpy(A_vector, A_vector_new, sizeof(A_vector_new)); 
 
-        if (j % 1000 == 0)
+        if (j % 100 == 0)
         {
             //for (matrix el : V_vector)
             //{

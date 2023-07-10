@@ -1,18 +1,11 @@
 #include <iostream>
-#include "eigen/Eigen/Dense"
-
+#include <iomanip>
 int main() 
 {
-  // Create a 3x3 matrix
-  Eigen::Matrix3d matrix;
 
-  // Set values in the matrix
-  matrix << 1, 2, 3,
-            4, 5, 6,
-            7, 8, 90;
 
   // Print the matrix
-  std::cout << "Matrix:\n" << matrix << std::endl;
+  std::cout << "Matrix:\n" <<std::setprecision(15)<< 2*1.22222222*4.4728689342658297 <<  std::endl;
 
   return 0;
 }
