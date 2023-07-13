@@ -9,9 +9,8 @@
 #include "eigen/Eigen/Dense"
 
 // Define timestep
-const double delta_t = 1e-3;
-const double seconds_simulated = 50;
-const double g = 1;
+const double delta_t = 5e-4;
+const double seconds_simulated = 200;
 
 // Repeat simulation for 1000 seconds.
 const int simulation_repetitions = seconds_simulated / delta_t;
@@ -19,6 +18,7 @@ const int simulation_repetitions = seconds_simulated / delta_t;
 const int N = 4;
 const int rows = N;
 const int cols = N;
+const double g = 1/sqrt(N);
 
 // Dimension of space
 const int dim = 9;
@@ -41,7 +41,7 @@ matrix anti_commutator(matrix A, matrix B)
 
 static std::random_device rd;
 static std::mt19937 rng(std::time(nullptr)); 
-std::normal_distribution<double> dist(0.0, 1e-10);
+std::normal_distribution<double> dist(0.0, 1e-8);
 
 // Cillian's Hamiltonian
 double H(
@@ -126,36 +126,6 @@ matrix gauss_law(matrix X1, matrix X2, matrix X3, matrix X4, matrix X5, matrix X
     return result;
 }
 
-// Acceleration of each coordinate matrix
-matrix PerturbingAcceleration(const int j, matrix* X_vector, int rows, int cols, const double g, const double c_1, const double c_2)
-{
-    matrix commutator_sum = matrix::Zero(rows, cols);
-    matrix sum_X = matrix::Zero(rows, cols);
-
-    matrix X = X_vector[j];
-
-    // The below 6 lines are doing the perturbing.
-    for( int k = 0; k < dim; k++)
-    {
-        sum_X += X_vector[k] * X_vector[k];
-    }
-    matrix perturbation = 2.0 * c_1 * X + 2.0 * c_2 * anti_commutator(X, sum_X );
-    commutator_sum += perturbation;
-
-
-    for (int i = 0; i < dim; i++)
-    {
-        if (i != j)
-        {  
-            matrix temp_commutator = commutator(X_vector[i], commutator(X, X_vector[i]));
-
-            commutator_sum += temp_commutator;
-        }   
-
-    }
-    return commutator_sum;
-}
-
 
 int main() 
 {
@@ -176,7 +146,7 @@ int main()
     // Generate and store X1, X2, X3, X4, X5, X6, X7, X8, and X9
         // Create an array to store the matrices
     // Open the text file for reading
-    std::ifstream inputX("Thermalised_X.txt");
+    std::ifstream inputX("thermalised_X.txt");
     if (!inputX.is_open()) {
         std::cerr << "Failed to open the file." << std::endl;
         return 1;
@@ -190,7 +160,7 @@ int main()
         {
             for (int col = 0; col < cols; ++col) 
             {
-                 inputX >> X2_vector[i](row, col);
+                 inputX >> X1_vector[i](row, col);
             }
         }
     }
@@ -200,7 +170,7 @@ int main()
 
         // Create an array to store the matrices
     // Open the text file for reading
-    std::ifstream inputV("Thermalised_V.txt");
+    std::ifstream inputV("thermalised_V.txt");
     if (!inputV.is_open()) {
         std::cerr << "Failed to open the V file." << std::endl;
         return 1;
@@ -225,7 +195,7 @@ int main()
 
         // Create an array to store the matrices
     // Open the text file for reading
-    std::ifstream inputA("Thermalised_A.txt");
+    std::ifstream inputA("thermalised_A.txt");
     if (!inputA.is_open()) {
         std::cerr << "Failed to open the file." << std::endl;
         return 1;
@@ -362,6 +332,7 @@ int main()
     }
 
 
+    std::cout << X1_vector[0];
 
 
 
@@ -403,8 +374,6 @@ int main()
         std::memcpy(A1_vector, A1_vector_new, sizeof(A1_vector_new)); 
 
     }
-
-
 
 
     double distance_initial = d_0(X1_vector, X2_vector);
@@ -472,13 +441,13 @@ int main()
 
 
 
-        if (j % 10000000 == 0)
+        if (j % 10000 == 0)
         {
-            std::cout << '\n' << "H" << std::setprecision(15) << H(1.0, 
+            std::cout << '\n' << "H" << std::setprecision(15) << H(g, 
                             X1_vector_new[0], X1_vector_new[1], X1_vector_new[2], X1_vector_new[3], X1_vector_new[4], X1_vector_new[5], X1_vector_new[6], X1_vector_new[7], X1_vector_new[8],
                           V1_vector_new[0], V1_vector_new[1], V1_vector_new[2], V1_vector_new[3], V1_vector_new[4], V1_vector_new[5], V1_vector_new[6], V1_vector_new[7], V1_vector_new[8]);
 
-            std::cout << '\n' << j  <<"H2 :" << std::setprecision(15) << H(1.0, 
+            std::cout << '\n' << j  <<"H2 :" << std::setprecision(15) << H(g, 
                             X2_vector_new[0], X2_vector_new[1], X2_vector_new[2], X2_vector_new[3], X2_vector_new[4], X2_vector_new[5], X2_vector_new[6], X2_vector_new[7], X2_vector_new[8],
                           V2_vector_new[0], V2_vector_new[1], V2_vector_new[2], V2_vector_new[3], V2_vector_new[4], V2_vector_new[5], V2_vector_new[6], V2_vector_new[7], V2_vector_new[8]);
 

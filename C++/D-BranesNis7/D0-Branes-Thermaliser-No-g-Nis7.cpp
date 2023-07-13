@@ -9,8 +9,8 @@
 #include "eigen/Eigen/Dense"
 
 // Define timestep
-const double delta_t = 1e-4;
-const double seconds_thermalised = 1;
+const double delta_t = 1e-3;
+const double seconds_thermalised = 100;
 const double g = 1/sqrt(7);
 
 // Repeat simulation for 1000 seconds.
@@ -172,7 +172,7 @@ int main()
     // Create a zero matrix in order to populate the V_vector with it.
     matrix zero_matrix = matrix::Zero(rows, cols);
 
-/*
+
 // For testing reproducibility use these X values
     std::ifstream inputX("initial_X.txt");
     if (!inputX.is_open()) {
@@ -195,15 +195,6 @@ int main()
 
     // Close the input file
     inputX.close();
-*/
-
-    // Generate and store X1, X2, X3, X4, X5, X6, X7, X8, and X9
-    for (int i = 0; i < dim; ++i) 
-    {
-        X_vector[i] = generateHermitianMatrix(rows, cols);
-    }
-
-
 
 
 
@@ -251,7 +242,7 @@ int main()
         // Copy elements from X_vector_new to X_vector
         std::memcpy(A_vector, A_vector_new, sizeof(A_vector_new)); 
 
-        if (j % 100000 == 0)
+        if (j % 10000 == 0)
         {
             //for (matrix el : V_vector)
             //{
@@ -261,7 +252,7 @@ int main()
             //                       V_vector_new[0], V_vector_new[1], V_vector_new[2], V_vector_new[3], V_vector_new[4], V_vector_new[5], V_vector_new[6], V_vector_new[7], V_vector_new[8]);
 
             std::cout << std::endl;
-            std::cout << "H" << std::setprecision(15) << H(1.0, 
+            std::cout << "H" << std::setprecision(15) << H(g, 
                             X_vector_new[0], X_vector_new[1], X_vector_new[2], X_vector_new[3], X_vector_new[4], X_vector_new[5], X_vector_new[6], X_vector_new[7], X_vector_new[8],
                           V_vector_new[0], V_vector_new[1], V_vector_new[2], V_vector_new[3], V_vector_new[4], V_vector_new[5], V_vector_new[6], V_vector_new[7], V_vector_new[8]);
 

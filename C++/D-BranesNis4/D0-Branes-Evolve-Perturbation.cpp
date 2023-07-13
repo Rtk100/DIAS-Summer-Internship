@@ -10,7 +10,6 @@
 // Define timestep
 const double delta_t = 5e-4;
 const double seconds_simulated = 50;
-const double g = 1;
 
 // Repeat simulation for 1000 seconds.
 const int simulation_repetitions = seconds_simulated / delta_t;
@@ -18,6 +17,9 @@ const int simulation_repetitions = seconds_simulated / delta_t;
 const int N = 4;
 const int rows = N;
 const int cols = N;
+
+const double g = 1/sqrt(N);
+
 // Dimension of space
 const int dim = 9;
 
@@ -82,7 +84,7 @@ matrix Acceleration(const int j, matrix* X_vector, int rows, int cols, const dou
     {
         if (i != j)
         {  
-            matrix temp_commutator = commutator(X_vector[i], commutator(X, X_vector[i]));
+            matrix temp_commutator.noaliasing() = commutator(X_vector[i], commutator(X, X_vector[i]));
             
 
             commutator_sum += temp_commutator;
@@ -241,7 +243,7 @@ int main()
 
         if (j % 1000 == 0)
         {
-            std::cout << '\n' << "H2 :" << std::setprecision(15) << H(1.0, 
+            std::cout << '\n' << "H2 :" << std::setprecision(15) << H(g, 
                             X2_vector_new[0], X2_vector_new[1], X2_vector_new[2], X2_vector_new[3], X2_vector_new[4], X2_vector_new[5], X2_vector_new[6], X2_vector_new[7], X2_vector_new[8],
                           V2_vector_new[0], V2_vector_new[1], V2_vector_new[2], V2_vector_new[3], V2_vector_new[4], V2_vector_new[5], V2_vector_new[6], V2_vector_new[7], V2_vector_new[8]);
         }

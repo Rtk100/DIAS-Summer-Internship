@@ -10,8 +10,8 @@
 
 // Define timestep
 const double delta_t = 1e-4;
-const double seconds_thermalised = 1;
-const double g = 1;
+const double seconds_thermalised = 10;
+const double g = 1/sqrt(2);
 
 // Repeat simulation for 1000 seconds.
 const int simulation_repetitions = seconds_thermalised / delta_t;
@@ -222,7 +222,10 @@ int main()
 
     // Close the input file
     inputX.close();
-
+    for(matrix el : X_vector)
+    {
+        std::cout << el << '\n';
+    }
 /*
     // Generate and store X1, X2, X3, X4, X5, X6, X7, X8, and X9
     for (int i = 0; i < dim; ++i) 
@@ -283,7 +286,7 @@ int main()
         // Copy elements from X_vector_new to X_vector
         std::memcpy(A_vector, A_vector_new, sizeof(A_vector_new)); 
 
-        if (j % 100 == 0)
+        if (j % 1 == 0)
         {
             //for (matrix el : V_vector)
             //{
@@ -293,7 +296,7 @@ int main()
             //                       V_vector_new[0], V_vector_new[1], V_vector_new[2], V_vector_new[3], V_vector_new[4], V_vector_new[5], V_vector_new[6], V_vector_new[7], V_vector_new[8]);
 
             std::cout << std::endl;
-            std::cout << "H" << std::setprecision(15) << H(1.0, 
+            std::cout << "H" << std::setprecision(15) << H(g, 
                             X_vector_new[0], X_vector_new[1], X_vector_new[2], X_vector_new[3], X_vector_new[4], X_vector_new[5], X_vector_new[6], X_vector_new[7], X_vector_new[8],
                           V_vector_new[0], V_vector_new[1], V_vector_new[2], V_vector_new[3], V_vector_new[4], V_vector_new[5], V_vector_new[6], V_vector_new[7], V_vector_new[8]);
 

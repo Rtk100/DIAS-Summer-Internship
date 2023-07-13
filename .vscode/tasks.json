@@ -12,7 +12,8 @@
                 "${fileDirname}\\${fileBasenameNoExtension}.exe",
                 "-I",
                 "${workspaceFolder}\\Visual Studio Code libraries\\eigen",
-                "-O2"
+                "-O3"
+
             ],
             "options": {
                 "cwd": "${fileDirname}"

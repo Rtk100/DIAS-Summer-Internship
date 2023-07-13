@@ -9,8 +9,8 @@
 #include "eigen/Eigen/Dense"
 
 // Define timestep
-const double delta_t = 5e-4;
-const double seconds_thermalised = 100;
+const double delta_t = 1e-3;
+const double seconds_thermalised = 500;
 const double sigma = 0.275;
 
 // Repeat simulation for 1000 seconds.
@@ -275,15 +275,6 @@ int main()
 
     // Close the input file
     inputX.close();
-
-/*
-    // Generate and store X1, X2, X3, X4, X5, X6, X7, X8, and X9
-    for (int i = 0; i < dim; ++i) 
-    {
-        X_vector[i] = generateHermitianMatrix(rows, cols);
-    }
-
-*/
 
 
 

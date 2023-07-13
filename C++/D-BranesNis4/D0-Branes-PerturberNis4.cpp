@@ -9,7 +9,7 @@
 #include "eigen/Eigen/Dense"
 
 // Define timestep
-const double delta_t = 1e-5;
+const double delta_t = 1e-4;
 const double seconds_perturbed = 1;
 
 // Repeat simulation for 1000 seconds.
@@ -130,7 +130,7 @@ int main()
     // Generate and store X1, X2, X3, X4, X5, X6, X7, X8, and X9
         // Create an array to store the matrices
     // Open the text file for reading
-    std::ifstream inputX("Thermalised_X.txt");
+    std::ifstream inputX("thermalised_X.txt");
     if (!inputX.is_open()) {
         std::cerr << "Failed to open the file." << std::endl;
         return 1;
@@ -154,7 +154,7 @@ int main()
 
         // Create an array to store the matrices
     // Open the text file for reading
-    std::ifstream inputV("Thermalised_V.txt");
+    std::ifstream inputV("thermalised_V.txt");
     if (!inputV.is_open()) {
         std::cerr << "Failed to open the V file." << std::endl;
         return 1;
@@ -179,7 +179,7 @@ int main()
 
         // Create an array to store the matrices
     // Open the text file for reading
-    std::ifstream inputA("Thermalised_A.txt");
+    std::ifstream inputA("thermalised_A.txt");
     if (!inputA.is_open()) {
         std::cerr << "Failed to open the file." << std::endl;
         return 1;

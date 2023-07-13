@@ -39,9 +39,7 @@ matrix anti_commutator(matrix A, matrix B)
     return A * B + B * A;
 } 
 
-static std::random_device rd;
-static std::mt19937 rng(std::time(nullptr)); 
-std::normal_distribution<double> dist(0.0, 1e-8);
+
 
 // Cillian's Hamiltonian
 double H(
@@ -129,9 +127,11 @@ matrix PerturbingAcceleration(const int j, matrix* X_vector, int rows, int cols,
 int main() 
 {
 
-
-    R_or_C c_1 = dist(rng);
-    R_or_C c_2 = dist(rng);
+    static std::random_device rd;
+    std::normal_distribution<double> dist(0.0, 1e-8);
+    R_or_C c_1 = dist(rd);
+    R_or_C c_2 = dist(rd);
+    
     // Create  vectors to store the matrices
     matrix X2_vector[dim];
     matrix V2_vector[dim];
@@ -284,16 +284,10 @@ int main()
         // Copy elements from X_vector_new to X_vector
         std::memcpy(A2_vector, A2_vector_new, sizeof(A2_vector_new));  
 
-        if (j % 1000 == 0)
+        if (j % 1 == 0)
         {
-            //for (matrix el : V_vector)
-            //{
-            //    std::cout <<"Ideal " << el << std::endl;
-            //}
-            std::cout  << std::endl << gauss_law(X2_vector_new[0], X2_vector_new[1], X2_vector_new[2], X2_vector_new[3], X2_vector_new[4], X2_vector_new[5], X2_vector_new[6], X2_vector_new[7], X2_vector_new[8],
-                                   V2_vector_new[0], V2_vector_new[1], V2_vector_new[2], V2_vector_new[3], V2_vector_new[4], V2_vector_new[5], V2_vector_new[6], V2_vector_new[7], V2_vector_new[8]);
 
-            std::cout << std::endl;
+            std::cout << std::endl <<"F1"<<A2_vector_new[0]<< std::endl;
             std::cout << "H" << std::setprecision(15) << H(1.0, c_1, c_2,
                             X2_vector_new[0], X2_vector_new[1], X2_vector_new[2], X2_vector_new[3], X2_vector_new[4], X2_vector_new[5], X2_vector_new[6], X2_vector_new[7], X2_vector_new[8],
                           V2_vector_new[0], V2_vector_new[1], V2_vector_new[2], V2_vector_new[3], V2_vector_new[4], V2_vector_new[5], V2_vector_new[6], V2_vector_new[7], V2_vector_new[8]);
