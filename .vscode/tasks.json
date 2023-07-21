@@ -10,9 +10,7 @@
                 "${file}",
                 "-o",
                 "${fileDirname}\\${fileBasenameNoExtension}.exe",
-                "-I",
-                "${workspaceFolder}\\Visual Studio Code libraries\\eigen",
-                "-O3"
+
 
             ],
             "options": {

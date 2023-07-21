@@ -7,16 +7,18 @@
 #include <complex>
 #include <vector>
 #include "eigen/Eigen/Dense"
+double start = std::time(nullptr);
 
 // Define timestep
-const double delta_t = 1e-3;
-const double seconds_thermalised = 100;
-const double g = 1/sqrt(7);
+const long double delta_t = 1e-3;
+const long double seconds_thermalised = 1000;
 
 // Repeat simulation for 1000 seconds.
 const int simulation_repetitions = seconds_thermalised / delta_t;
 // Number of D0-Branes
 const int N = 7;
+const long double g = 1/sqrt(N);
+
 const int rows = N;
 const int cols = N;
 
@@ -31,8 +33,8 @@ const int dim = 9;
 //To go from real matrices to complex matrices delete the above typedefs and use these typedefs.
 //And change the commented out code in generateHermitianMatrix()
 
-typedef std::complex<double> R_or_C;
-typedef Eigen:: Matrix<std::complex<double>, N, N> matrix;
+typedef std::complex<long double> R_or_C;
+typedef Eigen:: Matrix<std::complex<long double>, N, N> matrix;
 
 
 
@@ -44,13 +46,13 @@ matrix commutator(matrix A, matrix B)
 
 
 // Cillian's Hamiltonian
-double H(
-    double g, 
+long double H(
+    long double g, 
     matrix X1, matrix X2, matrix X3, matrix X4, matrix X5, matrix X6, matrix X7, matrix X8, matrix X9,
     matrix V1, matrix V2, matrix V3, matrix V4, matrix V5, matrix V6, matrix V7, matrix V8, matrix V9)
 {
     // Compute kinetic energy T
-    R_or_C T = 1.0/(2.0 * pow(g,2)) * (V1 * V1 + V2 * V2 + V3 * V3 + V4 * V4 + V5 * V5 + V6 * V6 + V7 * V7 + V8 * V8 + V9 * V9).trace();
+    R_or_C T = 1.0/(2.0 * g * g) * (V1 * V1 + V2 * V2 + V3 * V3 + V4 * V4 + V5 * V5 + V6 * V6 + V7 * V7 + V8 * V8 + V9 * V9).trace();
 
     matrix X[9] = {X1,X2,X3,X4,X5,X6,X7,X8,X9}; 
 
@@ -66,7 +68,7 @@ double H(
             }
         }
     }
-    R_or_C U = - 1.0/(4.0*pow(g,2)) * commutator_sum.trace();
+    R_or_C U = - 1.0/(4.0* g * g) * commutator_sum.trace();
 
 
 
@@ -242,7 +244,7 @@ int main()
         // Copy elements from X_vector_new to X_vector
         std::memcpy(A_vector, A_vector_new, sizeof(A_vector_new)); 
 
-        if (j % 10000 == 0)
+        if (j % 1000000 == 0)
         {
             //for (matrix el : V_vector)
             //{
@@ -295,6 +297,7 @@ int main()
     A2_vector_Export.close();
  
 
+    std::cout << "Time: " << -start + std::time(nullptr);
 
     return 0;
 }

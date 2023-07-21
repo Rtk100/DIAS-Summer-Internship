@@ -12,12 +12,10 @@
 #include "eigen/Eigen/Dense"
 
 
-
-
 // Define timestep
 const double delta_t = 1e-4;
 const double seconds_thermalised = 20;
-const double sigma = 0.205;
+const double sigma = .38;
 
 // Repeat simulation for 1000 seconds.
 const int simulation_repetitions = seconds_thermalised / delta_t;
@@ -148,9 +146,9 @@ int main()
 
     while (H(g, 
                     X_vector_new[0], X_vector_new[1], X_vector_new[2], X_vector_new[3], X_vector_new[4], X_vector_new[5], X_vector_new[6], X_vector_new[7], X_vector_new[8],
-                    V_vector_new[0], V_vector_new[1], V_vector_new[2], V_vector_new[3], V_vector_new[4], V_vector_new[5], V_vector_new[6], V_vector_new[7], V_vector_new[8]) -63 > 0.01|| H(g, 
+                    V_vector_new[0], V_vector_new[1], V_vector_new[2], V_vector_new[3], V_vector_new[4], V_vector_new[5], V_vector_new[6], V_vector_new[7], V_vector_new[8]) -630 > 0.01|| H(g, 
                     X_vector_new[0], X_vector_new[1], X_vector_new[2], X_vector_new[3], X_vector_new[4], X_vector_new[5], X_vector_new[6], X_vector_new[7], X_vector_new[8],
-                    V_vector_new[0], V_vector_new[1], V_vector_new[2], V_vector_new[3], V_vector_new[4], V_vector_new[5], V_vector_new[6], V_vector_new[7], V_vector_new[8]) -63<-0.01)
+                    V_vector_new[0], V_vector_new[1], V_vector_new[2], V_vector_new[3], V_vector_new[4], V_vector_new[5], V_vector_new[6], V_vector_new[7], V_vector_new[8]) -630<-0.01)
     
     {
         for (int i = 0; i < dim ; i++)
@@ -164,8 +162,6 @@ int main()
                           V_vector_new[0], V_vector_new[1], V_vector_new[2], V_vector_new[3], V_vector_new[4], V_vector_new[5], V_vector_new[6], V_vector_new[7], V_vector_new[8])<< '\n';
 
     }
-    
-        
     std::cout << "Done" << H(g, 
                             X_vector_new[0], X_vector_new[1], X_vector_new[2], X_vector_new[3], X_vector_new[4], X_vector_new[5], X_vector_new[6], X_vector_new[7], X_vector_new[8],
                           V_vector_new[0], V_vector_new[1], V_vector_new[2], V_vector_new[3], V_vector_new[4], V_vector_new[5], V_vector_new[6], V_vector_new[7], V_vector_new[8])<< '\n';

@@ -8,8 +8,8 @@
 #include "eigen/Eigen/Dense" 
 
 // Define timestep
-const double delta_t = 5e-4;
-const double seconds_simulated = 50;
+const double delta_t = 1e-4;
+const double seconds_simulated = 100;
 
 // Repeat simulation for 1000 seconds.
 const int simulation_repetitions = seconds_simulated / delta_t;
@@ -83,11 +83,8 @@ matrix Acceleration(const int j, matrix* X_vector, int rows, int cols, const dou
     for (int i = 0; i < dim; ++i)
     {
         if (i != j)
-        {  
-            matrix temp_commutator.noaliasing() = commutator(X_vector[i], commutator(X, X_vector[i]));
-            
-
-            commutator_sum += temp_commutator;
+        {              
+            commutator_sum += commutator(X_vector[i], commutator(X, X_vector[i]));
             
         }   
     // Comment out the line below to go back to the lagrangian e.q.m. With no -1/(g^2)
