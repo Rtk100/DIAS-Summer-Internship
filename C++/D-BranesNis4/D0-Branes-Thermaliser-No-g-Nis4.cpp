@@ -10,8 +10,8 @@
 double start = std::time(nullptr);
 
 // Define timestep
-const long double delta_t = 1e-4;
-const long double seconds_thermalised = 1000;
+const long double delta_t = 1e-3;
+const long double seconds_thermalised = 10;
 
 // Repeat simulation for 1000 seconds.
 const int simulation_repetitions = seconds_thermalised / delta_t;
@@ -197,7 +197,7 @@ int main()
         // Copy elements from X_vector_new to X_vector
         std::memcpy(A_vector, A_vector_new, sizeof(A_vector_new)); 
 
-        if (j % 100000 == 0)
+        if (j % 1000 == 0)
         {
             //for (matrix el : V_vector)
             //{

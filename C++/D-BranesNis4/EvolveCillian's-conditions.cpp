@@ -11,7 +11,7 @@
 
 // Define timestep
 const long double delta_t = 1e-4;
-const double seconds_simulated = 85;
+const double seconds_simulated = 100;
 
 // Repeat simulation for 1000 seconds.
 const int simulation_repetitions = seconds_simulated / delta_t;
@@ -81,7 +81,7 @@ matrix gauss_law(
 }
 
 // Acceleration of each coordinate matrix
-matrix Acceleration(const int j, matrix* X_vector, int rows, int cols, const double g)
+matrix Acceleration(const int j, matrix* X_vector, int rows, int cols, const long double g)
 {
     matrix commutator_sum = matrix::Zero(rows, cols);
 
@@ -123,7 +123,7 @@ int main()
     // Generate and store X1, X2, X3, X4, X5, X6, X7, X8, and X9
         // Create an array to store the matrices
     // Open the text file for reading
-    std::ifstream inputX("Thermalised_branes_4x4.txt");
+    std::ifstream inputX("CillianX.txt");
     if (!inputX.is_open()) {
         std::cerr << "Failed to open the file." << std::endl;
         return 1;
@@ -147,7 +147,7 @@ int main()
 
         // Create an array to store the matrices
     // Open the text file for reading
-    std::ifstream inputV("thermalised_branes_4x4V.txt");
+    std::ifstream inputV("CillianV.txt");
     if (!inputV.is_open()) {
         std::cerr << "Failed to open the V file." << std::endl;
         return 1;
@@ -264,7 +264,7 @@ int main()
 
 
     // Export initial X/V/A_vector to text files to be analysed in python.
-    std:: fstream X1_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/Cillian_X_original_sim5.txt", std:: ios:: out);
+    std:: fstream X1_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/Cillian_X_original.txt", std:: ios:: out);
     X1_vector_Export << std::fixed << std::setprecision(15);
     //Print to text file
     for (matrix Matrix : X1_vector)
@@ -272,7 +272,7 @@ int main()
         X1_vector_Export << Matrix << std::endl;
     }
 
-    std:: fstream V1_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/Cillian_V_original_sim5.txt", std:: ios:: out);
+    std:: fstream V1_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/Cillian_V_original.txt", std:: ios:: out);
     V1_vector_Export << std::fixed << std::setprecision(15);
     for (matrix Matrix : V1_vector)
     {
@@ -280,7 +280,7 @@ int main()
     }
 
 
-    std:: fstream X2_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/Cillian_X_perturbed_1_sim5.txt", std:: ios:: out);
+    std:: fstream X2_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/Cillian_X_perturbed.txt", std:: ios:: out);
     X2_vector_Export << std::fixed << std::setprecision(15);
     //Print to text file
     for (matrix Matrix : X2_vector)
@@ -288,7 +288,7 @@ int main()
         X2_vector_Export << Matrix << std::endl;
     }
 
-    std:: fstream V2_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/Cillian_V_perturbed_1_sim5.txt", std:: ios:: out);
+    std:: fstream V2_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/Cillian_V_perturbed.txt", std:: ios:: out);
     V2_vector_Export << std::fixed << std::setprecision(15);
     for (matrix Matrix : V2_vector)
     {
@@ -336,14 +336,6 @@ int main()
         std::memcpy(A1_vector, A1_vector_new, sizeof(A1_vector_new)); 
 
     }
-/*
-        std:: cout << "My perturb finished" << '\n';
-        std:: cout << "X1: " << X1_vector[0] << std:: endl << "X1_ds: " << X2_vector[0] << std:: endl << "X2: " << X1_vector[1] << std:: endl << "X2_ds: " << X2_vector[1] <<std:: endl;
-        std:: cout << "X3: " << X1_vector[2] << std:: endl << "X3_ds: " << X2_vector[2] << std:: endl << "X4: " << X1_vector[3] << std:: endl << "X4_ds: " << X2_vector[3] <<std:: endl;
-        std:: cout << "X5: " << X1_vector[4] << std:: endl << "X5_ds: " << X2_vector[4] << std:: endl << "X6: " << X1_vector[5] << std:: endl << "X6_ds: " << X2_vector[5] <<std:: endl;
-        std:: cout << "X7: " << X1_vector[6] << std:: endl << "X7_ds: " << X2_vector[6] << std:: endl << "X8: " << X1_vector[7] << std:: endl << "X8_ds: " << X2_vector[7] <<std:: endl;
-        std:: cout << "X9: " << X1_vector[8] << std:: endl << "X9_ds: " << X2_vector[8] << std:: endl;
-*/
 
 
     // Write simulation to simulate system
@@ -382,20 +374,7 @@ int main()
 
         if (j % 200 == 0)
         {
-/*
-            std::cout << "j: " << j <<'\n';
-            std::cout << '\n' << "H" << std::setprecision(15) << H(g, 
-                            X1_vector_new[0], X1_vector_new[1], X1_vector_new[2], X1_vector_new[3], X1_vector_new[4], X1_vector_new[5], X1_vector_new[6], X1_vector_new[7], X1_vector_new[8],
-                          V1_vector_new[0], V1_vector_new[1], V1_vector_new[2], V1_vector_new[3], V1_vector_new[4], V1_vector_new[5], V1_vector_new[6], V1_vector_new[7], V1_vector_new[8]);
 
-                
-            std:: cout << "X1: " << X1_vector[0] << std:: endl << "X2: " << X1_vector[1] << std:: endl ;
-            std:: cout << "X3: " << X1_vector[3] << std:: endl << "X4: " << X1_vector[3] << std:: endl ;
-            std:: cout << "X5: " << X1_vector[4] << std:: endl << "X6: " << X1_vector[5] << std:: endl ;
-            std:: cout << "X7: " << X1_vector[6] << std:: endl << "X8: " << X1_vector[7] << std:: endl ;
-            std:: cout << "X9: " << X1_vector[8] << std:: endl ;
-            
-*/    
         }
 
         if (j % 1000 == 0)
@@ -413,7 +392,7 @@ int main()
                 V1_vector_Export << Matrix << std::endl;
             }
 
-
+            std::cout << j << '\n';
 
 
         }
@@ -458,20 +437,7 @@ int main()
         std::memcpy(A2_vector, A2_vector_new, sizeof(A2_vector_new));  
 
 
-/*
-        if (j % 200 == 0)
-        {
-            std::cout << '\n' << j  <<"H2 :" << std::setprecision(15) << H(g, 
-                            X2_vector_new[0], X2_vector_new[1], X2_vector_new[2], X2_vector_new[3], X2_vector_new[4], X2_vector_new[5], X2_vector_new[6], X2_vector_new[7], X2_vector_new[8],
-                          V2_vector_new[0], V2_vector_new[1], V2_vector_new[2], V2_vector_new[3], V2_vector_new[4], V2_vector_new[5], V2_vector_new[6], V2_vector_new[7], V2_vector_new[8]);
-            std::cout << '\n';
-            std:: cout << "X1_ds: " << X2_vector[0] << std:: endl << "X2_ds: " << X2_vector[1] << std:: endl ;
-            std:: cout << "X3_ds: " << X2_vector[3] << std:: endl << "X4_ds: " << X2_vector[3] << std:: endl ;
-            std:: cout << "X5_ds: " << X2_vector[4] << std:: endl << "X6_ds: " << X2_vector[5] << std:: endl ;
-            std:: cout << "X7_ds: " << X2_vector[6] << std:: endl << "X8_ds: " << X2_vector[7] << std:: endl ;
-            std:: cout << "X9_ds: " << X2_vector[8] << std:: endl ;
-        }
-*/
+
 
         if (j % 1000 == 0)
         {
@@ -487,6 +453,7 @@ int main()
                 V2_vector_Export << Matrix << std::endl;
             }
 
+            std::cout << j << '\n';
 
         }
 

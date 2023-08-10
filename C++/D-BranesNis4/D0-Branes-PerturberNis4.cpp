@@ -19,13 +19,13 @@ const int N = 4;
 const int rows = N;
 const int cols = N;
 
-const double g = 1/sqrt(N);
+const long double g = 1/sqrt(N);
 
 // Dimension of space
 const int dim = 9;
 
-typedef std::complex<double> R_or_C;
-typedef Eigen:: Matrix<std::complex<double>, N, N> matrix;
+typedef std::complex<long double> R_or_C;
+typedef Eigen:: Matrix<std::complex<long double>, N, N> matrix;
 
 //typedef double R_or_C;
 //typedef Eigen::Matrix2d matrix;
@@ -42,11 +42,11 @@ matrix anti_commutator(matrix A, matrix B)
 
 static std::random_device rd;
 static std::mt19937 rng(std::time(nullptr)); 
-std::normal_distribution<double> dist(0.0, 1e-10);
+std::normal_distribution<long double> dist(0.0, 1e-10);
 
 // Cillian's Hamiltonian
-double H(
-    const double g, const double c_1, const double c_2,
+long double H(
+    const long double g, const long double c_1, const long double c_2,
     matrix X1, matrix X2, matrix X3, matrix X4, matrix X5, matrix X6, matrix X7, matrix X8, matrix X9,
     matrix V1, matrix V2, matrix V3, matrix V4, matrix V5, matrix V6, matrix V7, matrix V8, matrix V9)
 {
@@ -118,8 +118,8 @@ int main()
 {
 
 
-    double c_1 = dist(rng);
-    double c_2 = dist(rng);
+    long double c_1 = 5e-8;
+    long double c_2 = 2e-8;
     // Create  vectors to store the matrices
     matrix X2_vector[dim];
     matrix V2_vector[dim];
@@ -239,10 +239,7 @@ int main()
     // Perturb the system to get the two set of conditions, for 1 second before turning off the deformation.
     for (int j = 0; j < 1.0 / delta_t; ++j)
     {
-        //for (int h = 0; h < dim; h++)
-        //{
-        //    std::cout << std::endl << X2_vector[h];
-       // }
+
         // velocity Verlet 1 to get new positions from old positions, momentums and rate of change of momentums
 
         for (int i = 0; i < 9; ++i)

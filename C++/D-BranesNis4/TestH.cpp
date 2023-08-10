@@ -16,7 +16,7 @@ const long double seconds_thermalised = 1000;
 // Repeat simulation for 1000 seconds.
 const int simulation_repetitions = seconds_thermalised / delta_t;
 // Number of D0-Branes
-const int N = 7;
+const int N = 4;
 const long double g = 1.0/sqrt(N);
 const int rows = N;
 const int cols = N;
@@ -66,7 +66,6 @@ long double H(
         }
     }
     R_or_C U = - 1.0/(4.0 * g * g) * commutator_sum.trace();
-    std::cout << U << T;
 
 
     return std::abs(T + U.real());
@@ -107,6 +106,30 @@ int main()
 
     // Close the input file
     inputX.close();
+
+
+    // For testing reproducibility use these X values
+    std::ifstream inputV("TestV.txt");
+    if (!inputV.is_open()) {
+        std::cerr << "Failed to open X initial file." << std::endl;
+        return 1;
+    }
+
+    // Read the values from the file and store them in the matrices
+    for (int i = 0; i < dim; ++i) 
+    {
+
+        for (int row = 0; row < rows; ++row) 
+        {
+            for (int col = 0; col < cols; ++col) 
+            {
+                 inputV >> V_vector[i](row, col);
+            }
+        }
+    }
+
+    // Close the input file
+    inputV.close();
 
 
     for(matrix el : X_vector)

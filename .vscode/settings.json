@@ -62,5 +62,7 @@
         "*.expression": "cpp",
         "alignedvector3": "cpp",
         "fft": "cpp"
-    }
+    },
+    "cmake.sourceDirectory": "C:/Users/robtk/DIAS-Summer-Internship/C++/D-BranesNis4/eigen/bench/btl/libs/tensors",
+    "git.ignoreLimitWarning": true
 }

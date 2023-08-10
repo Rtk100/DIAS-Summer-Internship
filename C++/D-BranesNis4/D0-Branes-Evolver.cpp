@@ -11,8 +11,8 @@
 double start = std::time(nullptr);
 
 // Define timestep
-const double delta_t = 1e-4;
-const double seconds_simulated = 100;
+const long double delta_t = 1e-4;
+const long double seconds_simulated = 100;
 
 // Repeat simulation for 1000 seconds.
 const int simulation_repetitions = seconds_simulated / delta_t;
@@ -21,13 +21,13 @@ const int N = 4;
 const int rows = N;
 const int cols = N;
 
-const double g = 1/sqrt(N);
+const long double g = 1/sqrt(N);
 
 // Dimension of space
 const int dim = 9;
 
-typedef std::complex<double> R_or_C;
-typedef Eigen:: Matrix<std::complex<double>, N, N> matrix;
+typedef std::complex<long double> R_or_C;
+typedef Eigen:: Matrix<std::complex<long double>, N, N> matrix;
 
 
 matrix commutator(matrix A, matrix B)
@@ -43,8 +43,8 @@ matrix anti_commutator(matrix A, matrix B)
 
 
 // Cillian's Hamiltonian
-double H(
-    double g, 
+long double H(
+    long double g, 
     matrix X1, matrix X2, matrix X3, matrix X4, matrix X5, matrix X6, matrix X7, matrix X8, matrix X9,
     matrix V1, matrix V2, matrix V3, matrix V4, matrix V5, matrix V6, matrix V7, matrix V8, matrix V9)
 {
@@ -304,7 +304,7 @@ int main()
 
 
     // Export initial X/V/A_vector to text files to be analysed in python.
-    std:: fstream X1_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/X_original_Nis4_630ffast.txt", std:: ios:: out);
+    std:: fstream X1_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/X_original_Nis4_1260_5.5.txt", std:: ios:: out);
     X1_vector_Export << std::fixed << std::setprecision(15);
     //Print to text file
     for (matrix Matrix : X1_vector)
@@ -312,7 +312,7 @@ int main()
         X1_vector_Export << Matrix << std::endl;
     }
 
-    std:: fstream V1_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/V_original_Nis4_630ffast.txt", std:: ios:: out);
+    std:: fstream V1_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/V_original_Nis4_1260_5.5.txt", std:: ios:: out);
     V1_vector_Export << std::fixed << std::setprecision(15);
     for (matrix Matrix : V1_vector)
     {
@@ -320,15 +320,21 @@ int main()
     }
 
 
-    std:: fstream X2_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/X_perturbed_Nis4_630ffast.txt", std:: ios:: out);
+    std:: fstream X2_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/X_perturbed_Nis4_1260_5.5.txt", std:: ios:: out);
     X2_vector_Export << std::fixed << std::setprecision(15);
     //Print to text file
     for (matrix Matrix : X2_vector)
     {
         X2_vector_Export << Matrix << std::endl;
     }
+    std:: fstream H_original_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/H_original_Nis4_1260_5.5.txt", std:: ios:: out);
+    H_original_Export << std::fixed << std::setprecision(15);
 
-    std:: fstream V2_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/V_perturbed_Nis4_630ffast.txt", std:: ios:: out);
+    std:: fstream H_perturbed_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/H_perturbed_Nis4_1260_5.5.txt", std:: ios:: out);
+    H_perturbed_Export << std::fixed << std::setprecision(15);
+    
+
+    std:: fstream V2_vector_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/Harmonic oscillator warm up/V_perturbed_Nis4_1260_5.5.txt", std:: ios:: out);
     V2_vector_Export << std::fixed << std::setprecision(15);
     for (matrix Matrix : V2_vector)
     {
@@ -392,6 +398,8 @@ int main()
 
 
 
+    long double H1 = 0.0;
+    long double H2 = 0.0;
 
 
     // Write simulation to simulate system
@@ -428,11 +436,14 @@ int main()
 
 
 
-        if (j % 10000000 == 0)
+        if (j % 10000 == 0)
         {
-            std::cout << '\n' << "H" << std::setprecision(15) << H(g, 
+            H1 = H(g, 
                             X1_vector_new[0], X1_vector_new[1], X1_vector_new[2], X1_vector_new[3], X1_vector_new[4], X1_vector_new[5], X1_vector_new[6], X1_vector_new[7], X1_vector_new[8],
                           V1_vector_new[0], V1_vector_new[1], V1_vector_new[2], V1_vector_new[3], V1_vector_new[4], V1_vector_new[5], V1_vector_new[6], V1_vector_new[7], V1_vector_new[8]);
+            std::cout << '\n' << "H" << std::setprecision(15) << H1;
+
+            H_original_Export << " " <<H1;
         }
 
         if (j % 1000 == 0)
@@ -459,6 +470,8 @@ int main()
 
     X1_vector_Export.close();
     V1_vector_Export.close();
+    H_original_Export.close();
+
 
     // Write simulation to simulate system
     for (int j = 0; j < seconds_simulated / delta_t; ++j)
@@ -499,10 +512,12 @@ int main()
         if (j % 10000 == 0)
         {
             std::cout << std::time(nullptr)-start <<'\n';
-
-            std::cout << '\n' << j  <<"H2 :" << std::setprecision(15) << H(g, 
+            H2 = H(g, 
                             X2_vector_new[0], X2_vector_new[1], X2_vector_new[2], X2_vector_new[3], X2_vector_new[4], X2_vector_new[5], X2_vector_new[6], X2_vector_new[7], X2_vector_new[8],
                           V2_vector_new[0], V2_vector_new[1], V2_vector_new[2], V2_vector_new[3], V2_vector_new[4], V2_vector_new[5], V2_vector_new[6], V2_vector_new[7], V2_vector_new[8]);
+            std::cout << '\n' << j  <<"H2 :" << std::setprecision(15) << H2;
+            H_perturbed_Export <<" " << H2;
+
         }
 
         if (j % 1000 == 0)
@@ -529,6 +544,7 @@ int main()
 
     X2_vector_Export.close();
     V2_vector_Export.close();
+    H_perturbed_Export.close();
 
     std::cout << "Finished" << std::time(nullptr)-start;
 

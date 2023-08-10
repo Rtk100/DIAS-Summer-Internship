@@ -141,8 +141,8 @@ int main()
 {
 
 
-    long double c_1 = 2e-9;
-    long double c_2 = 5e-9;
+    long double c_1 = 5e-8;
+    long double c_2 = 2e-8;
     // Create  vectors to store the matrices
     matrix X2_vector[dim];
     matrix V2_vector[dim];
@@ -153,7 +153,7 @@ int main()
     // Generate and store X1, X2, X3, X4, X5, X6, X7, X8, and X9
         // Create an array to store the matrices
     // Open the text file for reading
-    std::ifstream inputX("Thermalised_branes_4x4.txt");
+    std::ifstream inputX("CillianX.txt");
     if (!inputX.is_open()) {
         std::cerr << "Failed to open the file." << std::endl;
         return 1;
@@ -177,7 +177,7 @@ int main()
 
         // Create an array to store the matrices
     // Open the text file for reading
-    std::ifstream inputV("thermalised_branes_4x4V.txt");
+    std::ifstream inputV("CillianV.txt");
     if (!inputV.is_open()) {
         std::cerr << "Failed to open the V file." << std::endl;
         return 1;
