@@ -68,7 +68,7 @@ long double H(
             }
         }
     }
-    R_or_C U = - g*g*1.0/(4.0) * commutator_sum.trace();
+    R_or_C U = - g*g*1.0/(2.0) * commutator_sum.trace();
 
     std::cout << U << T;
 
