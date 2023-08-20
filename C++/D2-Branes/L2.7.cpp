@@ -16,7 +16,7 @@ const long double seconds_thermalised = 10;
 // Repeat simulation for 1000 seconds.
 const int simulation_repetitions = seconds_thermalised / delta_t;
 // Number of D0-Branes
-const int N = 4;
+const int N = 3;
 const long double g = 1.0/sqrt(N);
 const int rows = N;
 const int cols = N;
@@ -25,16 +25,13 @@ const int cols = N;
 const int dim = 9;
 
 
-//typedef double R_or_C;
-//typedef Eigen:: Matrix<double, N, N> matrix;
-
-
 //To go from real matrices to complex matrices delete the above typedefs and use these typedefs.
 //And change the commented out code in generateHermitianMatrix()
-
-typedef std::complex<long double> R_or_C;
-typedef Eigen:: Matrix<std::complex<long double>, N, N> matrix;
-
+typedef double l_or_d;
+typedef std::complex<l_or_d> R_or_C;
+typedef Eigen:: Matrix<std::complex<l_or_d>, N, N> matrix;
+typedef Eigen:: Matrix<std::complex<l_or_d>, 1, N> row_vector;
+typedef Eigen:: Matrix<std::complex<l_or_d>, N, 1> col_vector;
 
 
 
@@ -43,37 +40,71 @@ matrix commutator(matrix A, matrix B)
     return A * B - B * A;
 } 
 
+// Initialising all Xs and Vs and As.
+l_or_d X_scalars_vector[27] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+matrix X_matrices_vector[9] = {matrix::Zero(rows, cols), matrix::Zero(rows, cols), matrix::Zero(rows, cols), matrix::Zero(rows, cols), matrix::Zero(rows, cols), matrix::Zero(rows, cols), matrix::Zero(rows, cols), matrix::Zero(rows, cols), matrix::Zero(rows, cols)};
+l_or_d V_scalars_vector[27] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+matrix V_matrices_vector[9] = {matrix::Zero(rows, cols), matrix::Zero(rows, cols), matrix::Zero(rows, cols), matrix::Zero(rows, cols), matrix::Zero(rows, cols), matrix::Zero(rows, cols), matrix::Zero(rows, cols), matrix::Zero(rows, cols), matrix::Zero(rows, cols)};
+l_or_d A_scalars_vector[27] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+matrix A_matrices_vector[9] = {matrix::Zero(rows, cols), matrix::Zero(rows, cols), matrix::Zero(rows, cols), matrix::Zero(rows, cols), matrix::Zero(rows, cols), matrix::Zero(rows, cols), matrix::Zero(rows, cols), matrix::Zero(rows, cols), matrix::Zero(rows, cols)};
 
-// Cillian's Hamiltonian
-long double H(
-    long double g, 
-    matrix X1, matrix X2, matrix X3, matrix X4, matrix X5, matrix X6, matrix X7, matrix X8, matrix X9,
-    matrix V1, matrix V2, matrix V3, matrix V4, matrix V5, matrix V6, matrix V7, matrix V8, matrix V9)
+
+// Initialising all Zs and Z_dots.
+// Z_scalars_vector = {Z12, Z13, Z21, Z23, Z31, Z32};
+R_or_C C_zero(0.0, 0.0);
+R_or_C Z_scalars_vector[6] = {C_zero, C_zero, C_zero, C_zero, C_zero, C_zero};
+R_or_C Z_dot_scalars_vector[6] = {C_zero, C_zero, C_zero, C_zero, C_zero, C_zero};
+
+// Z_row_vectors_vector = {Z14, Z24, Z34};
+row_vector Z_row_vectors_vector[3] = {matrix::Zero(1, cols), matrix::Zero(1, cols), matrix::Zero(1, cols)};
+row_vector Z_dot_row_vectors_vector[3] = {matrix::Zero(1, cols), matrix::Zero(1, cols), matrix::Zero(1, cols)};
+
+// Z_row_vectors_vector = {Z41, Z42, Z43};
+col_vector Z_col_vectors_vector[3] = {matrix::Zero(rows, 1), matrix::Zero(rows, 1), matrix::Zero(rows, 1)};
+col_vector Z_dot_col_vectors_vector[3] = {matrix::Zero(rows, 1), matrix::Zero(rows, 1), matrix::Zero(rows, 1)};
+
+// Initialising all phis and phi_dots
+
+
+// Initialising all Hs 
+matrix H(matrix A, )
+
+// Initialising all Gs
+
+
+// Initialising all Fs
+
+
+// Initialising all Ys
+
+// Total energy
+long double H( long double g, l_or_d* X_scalars_vector, matrix* X_matrices_vector, 
+               l_or_d* V_scalars_vector, matrix* V_matrices_vector, l_or_d* A_scalars_vector,
+               matrix* A_matrices_vector)
 {
-    // Compute kinetic energy T
-    long double coeff = 1.0/2.0;
-    R_or_C T = coeff * (V1 * V1 + V2 * V2 + V3 * V3 + V4 * V4 + V5 * V5 + V6 * V6 + V7 * V7 + V8 * V8 + V9 * V9).trace();
-
-    matrix X[9] = {X1,X2,X3,X4,X5,X6,X7,X8,X9}; 
-
-    matrix commutator_sum = matrix::Zero(rows, cols);  
-    for (int i = 0; i < 9; i++)
+    l_or_d X_sum = 0.0;
+    // Compute kinetic energy K
+    for(l_or_d X: X_scalars_vector)
     {
-        for (int j = 0; j < 9; j++)
-        {
-            if(i != j)
-            {
-                commutator_sum += commutator(X[i],X[j])*commutator(X[i],X[j]); //can likely be more efficient by less function calls
-
-            }
-        }
+        X_sum += X*X;
     }
-    R_or_C U = - g*g*1.0/(2.0) * commutator_sum.trace();
 
-    std::cout << U << T;
+    for(matrix X: X_matrices_vector)
+    {
+        X_sum += (X*X).trace();
+    }
+
+    l_or_d Z_sum = 0.0;
+    for()
+    {
+        Z_sum 
+    }    
+
+    l_or_d K = 0.5 * (  X_sum + Z_sum);
 
 
-    return std::abs(T + U.real());
+
+    return K - 0.5*g*g*(V_gauge, V_D, V_F);
 }
 
 // Cillian's Gauss' law
@@ -167,6 +198,11 @@ int main()
     matrix X_vector_new[9] = {zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix};
     matrix V_vector_new[9] = {zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix};
     matrix A_vector_new[9] = {zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix};
+
+    // Defining all phis and phi_dots
+
+
+
 
     // Write simulation to thermalise system
     for (int j = 0; j < seconds_thermalised / delta_t; ++j)
