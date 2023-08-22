@@ -14,6 +14,13 @@ long double c2 = 3.3;
 long double c3 = 1.2;
 long double c4 = -c1-c2-c3;
 
+long double c12 = 1.1;
+long double c13 = 2.2;
+long double c23 = 2.0;
+long double c14 = 0.7;
+long double c24 = 3.1;
+long double c34 = 0.9;
+
 // Define timestep
 const long double delta_t = 1e-3;
 const long double seconds_thermalised = 10;
@@ -374,85 +381,85 @@ int main()
     R_or_C phi31_dag = phi3_2_dag - phi1_2_dag;
 
     // Defining Ys and Y_dots and _dags of them
-    R_or_C Y1_11 = X1_1 * phi1_1;
-    R_or_C Y1_12 = X1_1 * phi1_2;
-    R_or_C Y1_13 = X1_1 * phi1_3;
-    R_or_C Y1_21 = X1_2 * phi1_1;
-    R_or_C Y1_22 = X1_2 * phi1_2;
-    R_or_C Y1_23 = X1_2 * phi1_3;
-    R_or_C Y1_31 = X1_3 * phi1_1;
-    R_or_C Y1_32 = X1_3 * phi1_2;
-    R_or_C Y1_33 = X1_3 * phi1_3;
- 
-    R_or_C Y2_11 = X2_1 * phi2_1;
-    R_or_C Y2_12 = X2_1 * phi2_2;
-    R_or_C Y2_13 = X2_1 * phi2_3;
-    R_or_C Y2_21 = X2_2 * phi2_1;
-    R_or_C Y2_22 = X2_2 * phi2_2;
-    R_or_C Y2_23 = X2_2 * phi2_3;
-    R_or_C Y2_31 = X2_3 * phi2_1;
-    R_or_C Y2_32 = X2_3 * phi2_2;
-    R_or_C Y2_33 = X2_3 * phi2_3;
- 
-    R_or_C Y3_11 = X3_1 * phi3_1;
-    R_or_C Y3_12 = X3_1 * phi3_2;
-    R_or_C Y3_13 = X3_1 * phi3_3;
-    R_or_C Y3_21 = X3_2 * phi3_1;
-    R_or_C Y3_22 = X3_2 * phi3_2;
-    R_or_C Y3_23 = X3_2 * phi3_3;
-    R_or_C Y3_31 = X3_3 * phi3_1;
-    R_or_C Y3_32 = X3_3 * phi3_2;
-    R_or_C Y3_33 = X3_3 * phi3_3;
+R_or_C Y1_11 = X1_1 * phi1_1 - phi1_1  * X1_1;
+R_or_C Y1_12 = X1_1 * phi1_2 - phi1_2  * X1_1;
+R_or_C Y1_13 = X1_1 * phi1_3 - phi1_3  * X1_1;
+R_or_C Y1_21 = X1_2 * phi1_1 - phi1_1  * X1_2;
+R_or_C Y1_22 = X1_2 * phi1_2 - phi1_2  * X1_2;
+R_or_C Y1_23 = X1_2 * phi1_3 - phi1_3  * X1_2;
+R_or_C Y1_31 = X1_3 * phi1_1 - phi1_1  * X1_3;
+R_or_C Y1_32 = X1_3 * phi1_2 - phi1_2  * X1_3;
+R_or_C Y1_33 = X1_3 * phi1_3 - phi1_3  * X1_3;
 
-    matrix Y4_11 = ( X4_1 * phi4_1);
-    matrix Y4_12 = ( X4_1 * phi4_2);
-    matrix Y4_13 = ( X4_1 * phi4_3);
-    matrix Y4_21 = ( X4_2 * phi4_1);
-    matrix Y4_22 = ( X4_2 * phi4_2);
-    matrix Y4_23 = ( X4_2 * phi4_3);
-    matrix Y4_31 = ( X4_3 * phi4_1);
-    matrix Y4_32 = ( X4_3 * phi4_2);
-    matrix Y4_33 = ( X4_3 * phi4_3);
+R_or_C Y2_11 = X2_1 * phi2_1 - phi2_1  * X2_1;
+R_or_C Y2_12 = X2_1 * phi2_2 - phi2_2  * X2_1;
+R_or_C Y2_13 = X2_1 * phi2_3 - phi2_3  * X2_1;
+R_or_C Y2_21 = X2_2 * phi2_1 - phi2_1  * X2_2;
+R_or_C Y2_22 = X2_2 * phi2_2 - phi2_2  * X2_2;
+R_or_C Y2_23 = X2_2 * phi2_3 - phi2_3  * X2_2;
+R_or_C Y2_31 = X2_3 * phi2_1 - phi2_1  * X2_3;
+R_or_C Y2_32 = X2_3 * phi2_2 - phi2_2  * X2_3;
+R_or_C Y2_33 = X2_3 * phi2_3 - phi2_3  * X2_3;
 
-    R_or_C Y1_11_dag = X1_1 * phi1_1_dag;
-    R_or_C Y1_12_dag = X1_1 * phi1_2_dag;
-    R_or_C Y1_13_dag = X1_1 * phi1_3_dag;
-    R_or_C Y1_21_dag = X1_2 * phi1_1_dag;
-    R_or_C Y1_22_dag = X1_2 * phi1_2_dag;
-    R_or_C Y1_23_dag = X1_2 * phi1_3_dag;
-    R_or_C Y1_31_dag = X1_3 * phi1_1_dag;
-    R_or_C Y1_32_dag = X1_3 * phi1_2_dag;
-    R_or_C Y1_33_dag = X1_3 * phi1_3_dag;
+R_or_C Y3_11 = X3_1 * phi3_1 - phi3_1  * X3_1 ;
+R_or_C Y3_12 = X3_1 * phi3_2 - phi3_2  * X3_1 ;
+R_or_C Y3_13 = X3_1 * phi3_3 - phi3_3  * X3_1 ;
+R_or_C Y3_21 = X3_2 * phi3_1 - phi3_1  * X3_2 ;
+R_or_C Y3_22 = X3_2 * phi3_2 - phi3_2  * X3_2 ;
+R_or_C Y3_23 = X3_2 * phi3_3 - phi3_3  * X3_2 ;
+R_or_C Y3_31 = X3_3 * phi3_1 - phi3_1  * X3_3 ;
+R_or_C Y3_32 = X3_3 * phi3_2 - phi3_2  * X3_3 ;
+R_or_C Y3_33 = X3_3 * phi3_3 - phi3_3  * X3_3 ;
 
-    R_or_C Y2_11_dag = X2_1 * phi2_1_dag;
-    R_or_C Y2_12_dag = X2_1 * phi2_2_dag;
-    R_or_C Y2_13_dag = X2_1 * phi2_3_dag;
-    R_or_C Y2_21_dag = X2_2 * phi2_1_dag;
-    R_or_C Y2_22_dag = X2_2 * phi2_2_dag;
-    R_or_C Y2_23_dag = X2_2 * phi2_3_dag;
-    R_or_C Y2_31_dag = X2_3 * phi2_1_dag;
-    R_or_C Y2_32_dag = X2_3 * phi2_2_dag;
-    R_or_C Y2_33_dag = X2_3 * phi2_3_dag;
+matrix Y4_11 = ( X4_1 * phi4_1) - ( phi4_1   * X4_1);
+matrix Y4_12 = ( X4_1 * phi4_2) - ( phi4_2   * X4_1);
+matrix Y4_13 = ( X4_1 * phi4_3) - ( phi4_3   * X4_1);
+matrix Y4_21 = ( X4_2 * phi4_1) - ( phi4_1   * X4_2);
+matrix Y4_22 = ( X4_2 * phi4_2) - ( phi4_2   * X4_2);
+matrix Y4_23 = ( X4_2 * phi4_3) - ( phi4_3   * X4_2);
+matrix Y4_31 = ( X4_3 * phi4_1) - ( phi4_1   * X4_3);
+matrix Y4_32 = ( X4_3 * phi4_2) - ( phi4_2   * X4_3);
+matrix Y4_33 = ( X4_3 * phi4_3) - ( phi4_3   * X4_3);
 
-    R_or_C Y3_11_dag = X3_1 * phi3_1_dag;
-    R_or_C Y3_12_dag = X3_1 * phi3_2_dag;
-    R_or_C Y3_13_dag = X3_1 * phi3_3_dag;
-    R_or_C Y3_21_dag = X3_2 * phi3_1_dag;
-    R_or_C Y3_22_dag = X3_2 * phi3_2_dag;
-    R_or_C Y3_23_dag = X3_2 * phi3_3_dag;
-    R_or_C Y3_31_dag = X3_3 * phi3_1_dag;
-    R_or_C Y3_32_dag = X3_3 * phi3_2_dag;
-    R_or_C Y3_33_dag = X3_3 * phi3_3_dag;
+R_or_C Y1_11_dag = X1_1 * phi1_1_dag - phi1_1_dag * X1_1;
+R_or_C Y1_12_dag = X1_1 * phi1_2_dag - phi1_2_dag * X1_1;
+R_or_C Y1_13_dag = X1_1 * phi1_3_dag - phi1_3_dag * X1_1;
+R_or_C Y1_21_dag = X1_2 * phi1_1_dag - phi1_1_dag * X1_2;
+R_or_C Y1_22_dag = X1_2 * phi1_2_dag - phi1_2_dag * X1_2;
+R_or_C Y1_23_dag = X1_2 * phi1_3_dag - phi1_3_dag * X1_2;
+R_or_C Y1_31_dag = X1_3 * phi1_1_dag - phi1_1_dag * X1_3;
+R_or_C Y1_32_dag = X1_3 * phi1_2_dag - phi1_2_dag * X1_3;
+R_or_C Y1_33_dag = X1_3 * phi1_3_dag - phi1_3_dag * X1_3;
 
-    matrix Y4_11_dag = ( X4_1 * phi4_1_dag);
-    matrix Y4_12_dag = ( X4_1 * phi4_2_dag);
-    matrix Y4_13_dag = ( X4_1 * phi4_3_dag);
-    matrix Y4_21_dag = ( X4_2 * phi4_1_dag);
-    matrix Y4_22_dag = ( X4_2 * phi4_2_dag);
-    matrix Y4_23_dag = ( X4_2 * phi4_3_dag);
-    matrix Y4_31_dag = ( X4_3 * phi4_1_dag);
-    matrix Y4_32_dag = ( X4_3 * phi4_2_dag);
-    matrix Y4_33_dag = ( X4_3 * phi4_3_dag);
+R_or_C Y2_11_dag = X2_1 * phi2_1_dag - phi2_1_dag * X2_1;
+R_or_C Y2_12_dag = X2_1 * phi2_2_dag - phi2_2_dag * X2_1;
+R_or_C Y2_13_dag = X2_1 * phi2_3_dag - phi2_3_dag * X2_1;
+R_or_C Y2_21_dag = X2_2 * phi2_1_dag - phi2_1_dag * X2_2;
+R_or_C Y2_22_dag = X2_2 * phi2_2_dag - phi2_2_dag * X2_2;
+R_or_C Y2_23_dag = X2_2 * phi2_3_dag - phi2_3_dag * X2_2;
+R_or_C Y2_31_dag = X2_3 * phi2_1_dag - phi2_1_dag * X2_3;
+R_or_C Y2_32_dag = X2_3 * phi2_2_dag - phi2_2_dag * X2_3;
+R_or_C Y2_33_dag = X2_3 * phi2_3_dag - phi2_3_dag * X2_3;
+
+R_or_C Y3_11_dag = X3_1 * phi3_1_dag - phi3_1_dag * X3_1;
+R_or_C Y3_12_dag = X3_1 * phi3_2_dag - phi3_2_dag * X3_1;
+R_or_C Y3_13_dag = X3_1 * phi3_3_dag - phi3_3_dag * X3_1;
+R_or_C Y3_21_dag = X3_2 * phi3_1_dag - phi3_1_dag * X3_2;
+R_or_C Y3_22_dag = X3_2 * phi3_2_dag - phi3_2_dag * X3_2;
+R_or_C Y3_23_dag = X3_2 * phi3_3_dag - phi3_3_dag * X3_2;
+R_or_C Y3_31_dag = X3_3 * phi3_1_dag - phi3_1_dag * X3_3;
+R_or_C Y3_32_dag = X3_3 * phi3_2_dag - phi3_2_dag * X3_3;
+R_or_C Y3_33_dag = X3_3 * phi3_3_dag - phi3_3_dag * X3_3;
+
+matrix Y4_11_dag = ( X4_1 * phi4_1_dag) - (phi4_1_dag * X4_1);
+matrix Y4_12_dag = ( X4_1 * phi4_2_dag) - (phi4_2_dag * X4_1);
+matrix Y4_13_dag = ( X4_1 * phi4_3_dag) - (phi4_3_dag * X4_1);
+matrix Y4_21_dag = ( X4_2 * phi4_1_dag) - (phi4_1_dag * X4_2);
+matrix Y4_22_dag = ( X4_2 * phi4_2_dag) - (phi4_2_dag * X4_2);
+matrix Y4_23_dag = ( X4_2 * phi4_3_dag) - (phi4_3_dag * X4_2);
+matrix Y4_31_dag = ( X4_3 * phi4_1_dag) - (phi4_1_dag * X4_3);
+matrix Y4_32_dag = ( X4_3 * phi4_2_dag) - (phi4_2_dag * X4_3);
+matrix Y4_33_dag = ( X4_3 * phi4_3_dag) - (phi4_3_dag * X4_3);
 
     // Defining Fs and F_dags
     R_or_C F12 = Z12*Z21 + c12/(g*g);
