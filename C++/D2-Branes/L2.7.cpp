@@ -186,6 +186,12 @@ long double H( long double g, l_or_d* X_scalars_vector, matrix* X_matrices_vecto
     l_or_d V_D = 1/2 * ((V_D_arg_k1 * V_D_arg_k1).expand() + (V_D_arg_k2 * V_D_arg_k2).expand() + 
              (V_D_arg_k3 * V_D_arg_k3).expand() + Trace(V_D_arg_k4 * V_D_arg_k4).expand() );
 
+    l_or_d V_F = ( Abs(F12)*Abs(F12) + Abs(F21)*Abs(F21) + Abs(F13)*Abs(F13) + Abs(F31)*Abs(F31) + Abs(F32)*Abs(F32) + Abs(F23)*Abs(F23) +
+                   F14 * F14_dag + F24 * F24_dag + F34 * F34_dag + 
+                   Trace( F41_dag * F41 ) + Trace( F42_dag * F42) + Trace( F43_dag * F43 )+
+                   Abs(G12)*Abs(G12) + Abs(G21)*Abs(G21) + Abs(G13)*Abs(G13) + Abs(G31)*Abs(G31) + Abs(G32)*Abs(G32) + Abs(G23)*Abs(G23) + 
+                   Trace( (G41_dag * G41) ).expand() + Trace( (G14 * G14_dag) ).expand() + Trace( (G42_dag * G42) ).expand() + 
+                   Trace( (G24 * G24_dag) ).expand() + Trace( (G43_dag * G43) ).expand() + Trace( (G34 * G34_dag) ).expand() )
 
     return K - 0.5*g*g*(V_gauge, V_D, V_F);
 }
@@ -611,7 +617,34 @@ int main()
     col_vector H42_2_dag = Z42_dag*X4_2 - X2_2*Z42_dag;
     col_vector H42_3_dag = Z42_dag*X4_3 - X2_3*Z42_dag;
 
-    
+    // Xk_ab 
+    R_or_C X1_12 = X1_1*X1_2 - X1_2*X1_1;
+    R_or_C X1_21 = X1_2*X1_1 - X1_1*X1_2;
+    R_or_C X1_13 = X1_1*X1_3 - X1_3*X1_1;
+    R_or_C X1_31 = X1_3*X1_1 - X1_1*X1_3;
+    R_or_C X1_23 = X1_2*X1_3 - X1_3*X1_2;
+    R_or_C X1_32 = X1_3*X1_2 - X1_2*X1_3;
+
+    R_or_C X2_12 = X2_1*X2_2 - X2_2*X2_1;
+    R_or_C X2_21 = X2_2*X2_1 - X2_1*X2_2;
+    R_or_C X2_13 = X2_1*X2_3 - X2_3*X2_1;
+    R_or_C X2_31 = X2_3*X2_1 - X2_1*X2_3;
+    R_or_C X2_23 = X2_2*X2_3 - X2_3*X2_2;
+    R_or_C X2_32 = X2_3*X2_2 - X2_2*X2_3;
+
+    R_or_C X3_12 = X3_1*X3_2 - X3_2*X3_1;
+    R_or_C X3_21 = X3_2*X3_1 - X3_1*X3_2;
+    R_or_C X3_13 = X3_1*X3_3 - X3_3*X3_1;
+    R_or_C X3_31 = X3_3*X3_1 - X3_1*X3_3;
+    R_or_C X3_23 = X3_2*X3_3 - X3_3*X3_2;
+    R_or_C X3_32 = X3_3*X3_2 - X3_2*X3_3;
+
+    matrix X4_12 = X4_1*X4_2 - X4_2*X4_1;
+    matrix X4_21 = X4_2*X4_1 - X4_1*X4_2;
+    matrix X4_13 = X4_1*X4_3 - X4_3*X4_1;
+    matrix X4_31 = X4_3*X4_1 - X4_1*X4_3;
+    matrix X4_23 = X4_2*X4_3 - X4_3*X4_2;
+    matrix X4_32 = X4_3*X4_2 - X4_2*X4_3;
 
     // Write simulation to thermalise system
     for (int j = 0; j < seconds_thermalised / delta_t; ++j)
