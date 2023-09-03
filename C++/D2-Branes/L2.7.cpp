@@ -36,10 +36,6 @@ const int cols = N;
 // Dimension of space
 const int dim = 9;
 
-
-//To go from real matrices to complex matrices delete the above typedefs and use these typedefs.
-//And change the commented out code in generateHermitianMatrix()
-
 // l_or_d stands for long double or double, switch out double for long double if accuracy is low.
 // R_or_C stands for Real or complex but means complex in this code, legacy from when I was doing real valued X elements in June.
 typedef double l_or_d;
