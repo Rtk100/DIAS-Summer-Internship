@@ -9,6 +9,8 @@
 #include "eigen/Eigen/Dense"
 double start = std::time(nullptr);
 
+std::complex<long double> I = {0.0, 1.0};
+
 long double c1 = 2.5;
 long double c2 = 3.3;
 long double c3 = 1.2;

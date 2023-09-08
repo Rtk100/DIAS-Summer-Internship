@@ -28,17 +28,18 @@ int main()
 
     R_or_C el(1.0, 2.2);
 
-    R_or_C I(0,1);
 
     R_or_C X1_4 = 1.0;
     R_or_C X1_5 = 1.2;
     R_or_C coeff(4, 0);
     R_or_C phi1_1 = coeff * (X1_4+I*X1_5);
 
+    std::complex<long double> I = {0.0, 1.0};
 
     std::cout << phi1_1 << '\n';
 
 
+    std::cout << I;
 
 
 
