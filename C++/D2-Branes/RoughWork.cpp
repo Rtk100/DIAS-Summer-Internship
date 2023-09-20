@@ -62,6 +62,7 @@ int main()
         Z_dot_Export << Z_dot<< "\n";
         A_Export << A<< "\n";
         
+        std::cout << matrix::Identity(N, N);
     }
 
 

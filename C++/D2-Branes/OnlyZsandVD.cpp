@@ -13,6 +13,18 @@
 #include "eigen/Eigen/Dense"
 double start = std::time(nullptr);
 
+long double c1 = 2.5;
+long double c2 = 3.3;
+long double c3 = 1.2;
+long double c4 = -c1-c2-c3;
+
+long double c12 = 1.1;
+long double c13 = 2.2;
+long double c23 = 2.0;
+long double c14 = 0.7;
+long double c24 = 3.1;
+long double c34 = 0.9;
+
 // Define timestep
 const long double delta_t = 1e-4;
 const long double seconds_thermalised = 100;
@@ -100,7 +112,24 @@ double H(
                     std::conj(Z31_dot)*Z31_dot + std::conj(Z32_dot)*Z32_dot + (Z14_dot.adjoint()*Z14_dot).trace() + (Z24_dot.adjoint()*Z24_dot).trace() + 
                     (Z34_dot.adjoint()*Z34_dot).trace() + (Z41_dot.adjoint()*Z41_dot).trace() + (Z42_dot.adjoint()*Z42_dot).trace() + (Z43_dot.adjoint()*Z43_dot).trace() );
 
-    Complex V_D = ;
+    Complex V_D_arg_k1 = (Z12 * std::conj(Z12) + Z13 * std::conj(Z13) + (Z14 * Z14.adjoint()).trace() -
+                                ( std::conj(Z21) * Z21 + std::conj(Z31) * Z31 + (Z41.adjoint() * Z41).trace() )
+                                 - c1/(g*g));
+
+    Complex V_D_arg_k2 = (Z21 * std::conj(Z21) + Z23 * std::conj(Z23) + (Z24 * Z24.adjoint()).trace() - 
+              ( std::conj(Z12) * Z12 + std::conj(Z32) * Z32 + (Z42.adjoint() * Z42).trace() )
+               - c2/(g*g) );
+
+    Complex V_D_arg_k3 = (Z31 * std::conj(Z31) + Z32 * std::conj(Z32) + (Z34 * Z34.adjoint()).trace() - 
+              ( std::conj(Z13) * Z13 + std::conj(Z23) * Z23 + (Z43.adjoint() * Z43).trace() ) 
+              - c3/(g*g) );
+
+    matrix V_D_arg_k4 = (Z41 * Z41.adjoint() + Z42 * Z42.adjoint() + Z43 * Z43.adjoint() + 
+              ( Z14.adjoint() * Z14 + Z24.adjoint() * Z24 + Z34.adjoint() * Z34 ) 
+              - c4/(g*g)*matrix::Identity(N, N) );
+
+    Complex V_D = Complex(0.5, 0) * ((V_D_arg_k1 * V_D_arg_k1) + (V_D_arg_k2 * V_D_arg_k2) + 
+             (V_D_arg_k3 * V_D_arg_k3) + (V_D_arg_k4 * V_D_arg_k4).trace() );
 
     Complex V = g*g*V_D;
 
