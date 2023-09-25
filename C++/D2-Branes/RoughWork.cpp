@@ -62,9 +62,30 @@ int main()
         Z_dot_Export << Z_dot<< "\n";
         A_Export << A<< "\n";
         
-        std::cout << matrix::Identity(N, N);
     }
+        R_or_C Z13 = R_or_C(0.5, 2);
+        row_vector Z14;
+        Z14(0,0) = R_or_C(1,1);
+        Z14(0,1) = R_or_C(2,1);
+        Z14(0,2) = R_or_C(3,1);
+        Z14(0,3) = R_or_C(4,1);
 
+        col_vector Z41;
+        Z41(0,0) = R_or_C(1,1);
+        Z41(1,0) = R_or_C(2,1);
+        Z41(2,0) = R_or_C(3,1);
+        Z41(3,0) = R_or_C(4,1);
+
+        std::cout << Z14 << '\n' << (Z14 * Z14.adjoint());
+        std::cout << Z41 << '\n' << 34 + (Z41.adjoint() * Z41)[0].real();
+/*
+        long double Z = ((Z14 * Z14.adjoint())).real();
+
+        abs(Z13)*abs(Z13) + ((Z14 * Z14.adjoint())).real();
+        abs(Z13)*abs(Z13) + ((Z41.adjoint() * Z41)).real();
+
+        std::cout << Z14 << '\n' << (Z14 * Z14.adjoint());
+*/
 
 
 

@@ -98,7 +98,7 @@ col_vector Z42_dot = zero_col;
 col_vector Z43_dot = zero_col;
 
 // Define H = K + V
-double H(
+Complex H(
     const long double g, 
     Complex Z12, Complex Z13, Complex Z21, Complex Z23, Complex Z31, Complex Z32,
     row_vector Z14, row_vector Z24, row_vector Z34,
@@ -108,25 +108,28 @@ double H(
     col_vector Z41_dot, col_vector Z42_dot, col_vector Z43_dot)
 {   
 
-    Complex K = Complex(0.5, 0) * (std::conj(Z12_dot)*Z12_dot + std::conj(Z13_dot)*Z13_dot + std::conj(Z21_dot)*Z21_dot + std::conj(Z23_dot)*Z23_dot + 
-                    std::conj(Z31_dot)*Z31_dot + std::conj(Z32_dot)*Z32_dot + (Z14_dot.adjoint()*Z14_dot).trace() + (Z24_dot.adjoint()*Z24_dot).trace() + 
-                    (Z34_dot.adjoint()*Z34_dot).trace() + (Z41_dot.adjoint()*Z41_dot).trace() + (Z42_dot.adjoint()*Z42_dot).trace() + (Z43_dot.adjoint()*Z43_dot).trace() );
+    Complex K = Complex(0.5, 0) * (std::conj(Z12_dot)*Z12_dot + std::conj(Z13_dot)*Z13_dot +
+                                   std::conj(Z21_dot)*Z21_dot + std::conj(Z23_dot)*Z23_dot + 
+                                   std::conj(Z31_dot)*Z31_dot + std::conj(Z32_dot)*Z32_dot + 
+                                   (Z14_dot.adjoint()*Z14_dot).trace() + (Z24_dot.adjoint()*Z24_dot).trace() + 
+                                   (Z34_dot.adjoint()*Z34_dot).trace() + (Z41_dot.adjoint()*Z41_dot).trace() + 
+                                   (Z42_dot.adjoint()*Z42_dot).trace() + (Z43_dot.adjoint()*Z43_dot).trace() );
 
     Complex V_D_arg_k1 = (Z12 * std::conj(Z12) + Z13 * std::conj(Z13) + (Z14 * Z14.adjoint()).trace() -
-                                ( std::conj(Z21) * Z21 + std::conj(Z31) * Z31 + (Z41.adjoint() * Z41).trace() )
-                                 - c1/(g*g));
+                         (std::conj(Z21) * Z21 + std::conj(Z31) * Z31 + (Z41.adjoint() * Z41).trace() )
+                         - c1/(g*g));
 
     Complex V_D_arg_k2 = (Z21 * std::conj(Z21) + Z23 * std::conj(Z23) + (Z24 * Z24.adjoint()).trace() - 
-              ( std::conj(Z12) * Z12 + std::conj(Z32) * Z32 + (Z42.adjoint() * Z42).trace() )
-               - c2/(g*g) );
+                         (std::conj(Z12) * Z12 + std::conj(Z32) * Z32 + (Z42.adjoint() * Z42).trace() )
+                         - c2/(g*g) );
 
     Complex V_D_arg_k3 = (Z31 * std::conj(Z31) + Z32 * std::conj(Z32) + (Z34 * Z34.adjoint()).trace() - 
-              ( std::conj(Z13) * Z13 + std::conj(Z23) * Z23 + (Z43.adjoint() * Z43).trace() ) 
-              - c3/(g*g) );
+                         (std::conj(Z13) * Z13 + std::conj(Z23) * Z23 + (Z43.adjoint() * Z43).trace() ) 
+                         - c3/(g*g) );
 
     matrix V_D_arg_k4 = (Z41 * Z41.adjoint() + Z42 * Z42.adjoint() + Z43 * Z43.adjoint() + 
-              ( Z14.adjoint() * Z14 + Z24.adjoint() * Z24 + Z34.adjoint() * Z34 ) 
-              - c4/(g*g)*matrix::Identity(N, N) );
+                        (Z14.adjoint() * Z14 + Z24.adjoint() * Z24 + Z34.adjoint() * Z34 ) 
+                        - c4/(g*g) * matrix::Identity() );
 
     Complex V_D = Complex(0.5, 0) * ((V_D_arg_k1 * V_D_arg_k1) + (V_D_arg_k2 * V_D_arg_k2) + 
              (V_D_arg_k3 * V_D_arg_k3) + (V_D_arg_k4 * V_D_arg_k4).trace() );
@@ -170,12 +173,37 @@ int main()
         A_vector[i] = Acceleration(i, X_vector, rows, cols, g);
     }  
 
-
-    // Create  vectors to store the new matrices
-    matrix X_vector_new[9] = {zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix};
-    matrix V_vector_new[9] = {zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix};
-    matrix A_vector_new[9] = {zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix, zero_matrix};
 */
+    // Define the initial accelerations from the equations of motion
+
+/* 
+There are terms in the equations of motion that appear a bunch of times. These are the bracketed terms that are most easily spotted by
+looking for the c^k. All bracketed terms with c^1 are the same, and that stands for all k. So I define them here to more easily write out
+the equations of motion.
+*/ 
+    Complex c1_term = abs(Z12)*abs(Z12) + abs(Z13)*abs(Z13) + (Z14 * Z14.adjoint())[0] - abs(Z21)*abs(Z21) - abs(Z31)*abs(Z31) - (Z41.adjoint() * Z41)[0] - c1/(g*g);
+    Complex c2_term = abs(Z21)*abs(Z21) + abs(Z23)*abs(Z23) + (Z24 * Z24.adjoint())[0] - abs(Z12)*abs(Z12) - abs(Z32)*abs(Z32) - (Z42.adjoint() * Z42)[0] - c2/(g*g);
+    Complex c3_term = abs(Z31)*abs(Z31) + abs(Z32)*abs(Z32) + (Z34 * Z34.adjoint())[0] - abs(Z13)*abs(Z13) - abs(Z23)*abs(Z23) - (Z43.adjoint() * Z43)[0] - c3/(g*g);
+    matrix c4_term = (Z41 * Z41.adjoint()) + (Z42 * Z42.adjoint()) + (Z43 * Z43.adjoint()) - (Z14.adjoint() * Z14) - (Z24.adjoint() * Z24) - (Z34.adjoint() * Z34) - c4/(g*g) * matrix::Identity();
+    
+
+    // Define the accelerations of Z
+
+    Complex Z12_double_dot = -Z12 * c1_term + Z12 * c2_term;
+    Complex Z21_double_dot = +Z21 * c1_term - Z21 * c2_term;
+    Complex Z13_double_dot = -Z13 * c1_term + Z13 * c3_term;
+    Complex Z31_double_dot = +Z31 * c1_term - Z31 * c3_term;
+    Complex Z23_double_dot = -Z23 * c2_term + Z23 * c3_term;
+    Complex Z32_double_dot = +Z32 * c2_term - Z32 * c3_term;
+
+    row_vector Z14_double_dot = -Z14 * c1_term + Z14 * c4_term;
+    row_vector Z41_double_dot =  Z41 * c1_term - c4_term * Z41;
+    row_vector Z24_double_dot = -Z24 * c2_term + Z24 * c4_term;
+    col_vector Z42_double_dot =  Z42 * c1_term - c4_term * Z42;
+    col_vector Z34_double_dot = -Z34 * c3_term + Z34 * c4_term;
+    col_vector Z43_double_dot =  Z43 * c3_term - c4_term * Z43;
+
+
 
     Complex scalar_Zs[6] = {Z12, Z13, Z21, Z23, Z31, Z32};
     row_vector row_Zs[3] = {Z14, Z24, Z34};
@@ -197,9 +225,15 @@ int main()
     row_vector row_Z_double_dots[3] = {Z14_double_dot, Z24_double_dot, Z34_double_dot};
     col_vector col_Z_double_dots[3] = {Z41_double_dot, Z42_double_dot, Z43_double_dot};
 
-    Complex scalar_Z_double_dots_new[6] = {Complex(0.0, 0.0), Complex(0, 0), Complex(0, 0), Complex(0, 0), Complex(0, 0), Complex(0, 0)};
+    Complex scalar_Z_double_dots_new[6] = {Complex(0.0, 0.0), Complex(0.0, 0.0), Complex(0.0, 0.0), Complex(0.0, 0.0), Complex(0.0, 0.0), Complex(0.0, 0.0)};
     row_vector row_Z_double_dots_new[3] = {zero_row, zero_row, zero_row};
     col_vector col_Z_double_dots_new[3] = {zero_col, zero_col, zero_col};
+
+
+    Complex c1_term_new = abs(scalar_Zs_new[0])*abs(scalar_Zs_new[0]) + abs(scalar_Zs_new[1])*abs(scalar_Zs_new[1]) + (row_Zs_new[0] * row_Zs_new[0].adjoint())[0] - abs(scalar_Zs_new[2])*abs(scalar_Zs_new[2]) - abs(scalar_Zs_new[4])*abs(scalar_Zs_new[4]) - (col_Zs_new[0].adjoint() * col_Zs_new[0])[0] - c1/(g*g);
+    Complex c2_term_new = abs(scalar_Zs_new[2])*abs(scalar_Zs_new[2]) + abs(scalar_Zs_new[3])*abs(scalar_Zs_new[3]) + (row_Zs_new[1] * row_Zs_new[1].adjoint())[0] - abs(scalar_Zs_new[0])*abs(scalar_Zs_new[0]) - abs(scalar_Zs_new[5])*abs(scalar_Zs_new[5]) - (col_Zs_new[1].adjoint() * col_Zs_new[1])[0] - c2/(g*g);
+    Complex c3_term_new = abs(scalar_Zs_new[4])*abs(scalar_Zs_new[4]) + abs(scalar_Zs_new[5])*abs(scalar_Zs_new[5]) + (row_Zs_new[2] * row_Zs_new[2].adjoint())[0] - abs(scalar_Zs_new[1])*abs(scalar_Zs_new[1]) - abs(scalar_Zs_new[3])*abs(scalar_Zs_new[3]) - (col_Zs_new[2].adjoint() * col_Zs_new[2])[0] - c3/(g*g);
+    matrix c4_term_new = (col_Zs_new[0] * col_Zs_new[0].adjoint()) + (col_Zs_new[1] * col_Zs_new[1].adjoint()) + (col_Zs_new[2] * col_Zs_new[2].adjoint()) - (row_Zs_new[0].adjoint() * row_Zs_new[0]) - (row_Zs_new[1].adjoint() * row_Zs_new[1]) - (row_Zs_new[2].adjoint() * row_Zs_new[2]) - c4/(g*g) * matrix::Identity();
 
     // Write simulation to thermalise system
     for (int j = 0; j < seconds_thermalised / delta_t; ++j)
@@ -221,18 +255,30 @@ int main()
         }
 
         // Generate and store new A1, A2, A3, A4, A5, A6, A7, A8, and A9
-        scalar_Z_double_dots_new[0] = ;
-        scalar_Z_double_dots_new[1] = ;
-        scalar_Z_double_dots_new[2] = ;
-        scalar_Z_double_dots_new[3] = ;
-        scalar_Z_double_dots_new[4] = ;
-        scalar_Z_double_dots_new[5] = ;
-        row_Z_double_dots_new[0] = ;
-        row_Z_double_dots_new[1] = ;
-        row_Z_double_dots_new[2] = ;
-        col_Z_double_dots_new[0] = ;
-        col_Z_double_dots_new[1] = ;
-        col_Z_double_dots_new[2] = ;
+/*
+    matrix Z14_double_dot = -Z14 * c1_term + Z14 * c4_term;
+    matrix Z41_double_dot =  Z41 * c1_term - c4_term * Z41;
+    matrix Z24_double_dot = -Z24 * c2_term + Z24 * c4_term;
+    matrix Z42_double_dot =  Z42 * c1_term - c4_term * Z42;
+    matrix Z34_double_dot = -Z34 * c3_term + Z34 * c4_term;
+    matrix Z43_double_dot =  Z43 * c3_term - c4_term * Z43;
+
+    Complex scalar_Zs[6] = {Z12, Z13, Z21, Z23, Z31, Z32};
+    row_vector row_Zs[3] = {Z14, Z24, Z34};
+    col_vector col_Zs[3] = {Z41, Z42, Z43};
+*/
+        scalar_Z_double_dots_new[0] = -scalar_Zs_new[0] * c1_term_new + scalar_Zs_new[0] * c2_term_new;
+        scalar_Z_double_dots_new[1] = +scalar_Zs_new[2] * c1_term_new - scalar_Zs_new[2] * c2_term_new;
+        scalar_Z_double_dots_new[2] = -scalar_Zs_new[1] * c1_term_new + scalar_Zs_new[1] * c3_term_new;
+        scalar_Z_double_dots_new[3] = +scalar_Zs_new[4] * c1_term_new - scalar_Zs_new[4] * c3_term_new;
+        scalar_Z_double_dots_new[4] = -scalar_Zs_new[3] * c2_term_new + scalar_Zs_new[3] * c3_term_new;
+        scalar_Z_double_dots_new[5] = +scalar_Zs_new[5] * c2_term_new - scalar_Zs_new[5] * c3_term_new;
+        row_Z_double_dots_new[0] = -row_Zs_new[0] * c1_term_new + row_Zs_new[0] * c4_term_new;
+        row_Z_double_dots_new[1] =  col_Zs_new[0] * c1_term_new - c4_term_new * col_Zs_new[0];
+        row_Z_double_dots_new[2] = -row_Zs_new[1] * c2_term_new + row_Zs_new[1] * c4_term_new;
+        col_Z_double_dots_new[0] =  col_Zs_new[1] * c1_term_new - c4_term_new * col_Zs_new[1];
+        col_Z_double_dots_new[1] = -row_Zs_new[2] * c3_term_new + row_Zs_new[2] * c4_term_new;
+        col_Z_double_dots_new[2] =  col_Zs_new[2] * c3_term_new - c4_term_new * col_Zs_new[2];
 
 
         // Use Velocity Verlet 2 to get new momentums
