@@ -10,9 +10,14 @@
 #include <random>
 #include <complex>
 #include <vector>
+
+// The Eigen package, downloadable from the internet must be in the same folder as this .cpp file.
 #include "eigen/Eigen/Dense"
+
+// start variable is used to measure the amount of time it takes to run the code.
 double start = std::time(nullptr);
 
+// Random ci coefficients, I think these are valid numbers for them.
 long double c1 = 2.5;
 long double c2 = 3.3;
 long double c3 = 1.2;
@@ -25,35 +30,34 @@ long double c14 = 0.7;
 long double c24 = 3.1;
 long double c34 = 0.9;
 
-// Define timestep
+// Define timestep that each repetition will advance by.
 const long double delta_t = 1e-4;
+
+// Define the amount of seconds the system will be thermalised for
 const long double seconds_thermalised = 100;
 
-// Repeat simulation for 1000 seconds.
+// Repeat simulation for appropriate amount of repetitions to reach the desired seconds thermalised.
 const int simulation_repetitions = seconds_thermalised / delta_t;
+
 // Number of D0-Branes
 const int N = 3;
+
 const long double g = 1.0;
+
+// Define number of columns and rows each X matrix will have
 const int rows = N;
 const int cols = N;
 
 // Dimension of space
 const int dim = 9;
 
-
-//typedef double Complex;
-//typedef Eigen:: Matrix<double, N, N> matrix;
-
-
-//To go from real matrices to complex matrices delete the above typedefs and use these typedefs.
-//And change the commented out code in generateHermitianMatrix()
-typedef long double l_or_d;
+// Typedefs are used to define the type of object a variable is without writing the entire C++ name of each variable type
 typedef std::complex<long double> Complex;
 typedef Eigen:: Matrix<std::complex<long double>, N, N> matrix;
-typedef Eigen:: Matrix<std::complex<l_or_d>, 1, N> row_vector;
-typedef Eigen:: Matrix<std::complex<l_or_d>, N, 1> col_vector;
+typedef Eigen:: Matrix<std::complex<long double>, 1, N> row_vector;
+typedef Eigen:: Matrix<std::complex<long double>, N, 1> col_vector;
 
-// Initialise all Z generalised coords
+// Initialise all Z generalised coords as randomised scalars or vectors
 static std::random_device rd;
 double sigma = 1.0;
 static std::mt19937 rng(std::time(nullptr)); 
@@ -68,7 +72,7 @@ Complex Z23 = Complex((dist(rng),dist(rng)));
 Complex Z31 = Complex((dist(rng),dist(rng)));
 Complex Z32 = Complex((dist(rng),dist(rng)));
 
-// Random below gives the same Z vectors every time unfortunately.
+// Random argument below gives the same Z vectors every time the code is run unfortunately.
 row_vector Z14 = row_vector::Random();
 row_vector Z24 = row_vector::Random();
 row_vector Z34 = row_vector::Random();
@@ -78,11 +82,12 @@ col_vector Z42 = col_vector::Random();
 col_vector Z43 = col_vector::Random();
 
 
-// Create a zero matrix in order to populate the V_vector with it.
+// Create a zero matrix and zero vectors.
 matrix zero_matrix = matrix::Zero();
 row_vector zero_row = row_vector::Zero();
 col_vector zero_col = col_vector::Zero();
 
+// Set the initial Z velocities to zeros
 Complex Z12_dot = Complex(0.0, 0.0);
 Complex Z13_dot = Complex(0.0, 0.0);
 Complex Z21_dot = Complex(0.0, 0.0);
@@ -96,6 +101,27 @@ row_vector Z34_dot = zero_row;
 col_vector Z41_dot = zero_col;
 col_vector Z42_dot = zero_col;
 col_vector Z43_dot = zero_col;
+
+// These terms are present in all the equations of motion for Z.
+Complex c1_term = abs(Z12)*abs(Z12) + abs(Z13)*abs(Z13) + (Z14 * Z14.adjoint())[0] - abs(Z21)*abs(Z21) - abs(Z31)*abs(Z31) - (Z41.adjoint() * Z41)[0] - c1/(g*g);
+Complex c2_term = abs(Z21)*abs(Z21) + abs(Z23)*abs(Z23) + (Z24 * Z24.adjoint())[0] - abs(Z12)*abs(Z12) - abs(Z32)*abs(Z32) - (Z42.adjoint() * Z42)[0] - c2/(g*g);
+Complex c3_term = abs(Z31)*abs(Z31) + abs(Z32)*abs(Z32) + (Z34 * Z34.adjoint())[0] - abs(Z13)*abs(Z13) - abs(Z23)*abs(Z23) - (Z43.adjoint() * Z43)[0] - c3/(g*g);
+matrix c4_term = (Z41 * Z41.adjoint()) + (Z42 * Z42.adjoint()) + (Z43 * Z43.adjoint()) - (Z14.adjoint() * Z14) - (Z24.adjoint() * Z24) - (Z34.adjoint() * Z34) - c4/(g*g) * matrix::Identity();
+    
+// Define the Z accelerations from the equations of motion.
+Complex Z12_double_dot = -Z12 * c1_term + Z12 * c2_term;
+Complex Z21_double_dot = +Z21 * c1_term - Z21 * c2_term;
+Complex Z13_double_dot = -Z13 * c1_term + Z13 * c3_term;
+Complex Z31_double_dot = +Z31 * c1_term - Z31 * c3_term;
+Complex Z23_double_dot = -Z23 * c2_term + Z23 * c3_term;
+Complex Z32_double_dot = +Z32 * c2_term - Z32 * c3_term;
+
+row_vector Z14_double_dot = -Z14 * c1_term + Z14 * c4_term;
+row_vector Z41_double_dot =  Z41 * c1_term - c4_term * Z41;
+row_vector Z24_double_dot = -Z24 * c2_term + Z24 * c4_term;
+col_vector Z42_double_dot =  Z42 * c1_term - c4_term * Z42;
+col_vector Z34_double_dot = -Z34 * c3_term + Z34 * c4_term;
+col_vector Z43_double_dot =  Z43 * c3_term - c4_term * Z43;
 
 // Define H = K + V
 Complex H(
@@ -141,74 +167,13 @@ Complex H(
 
 int main() 
 {
-/*
-// For testing reproducibility use these X values
-    std::ifstream inputX("initial_X.txt");
-    if (!inputX.is_open()) {
-        std::cerr << "Failed to open X initial file." << std::endl;
-        return 1;
-    }
-
-    // Read the values from the file and store them in the matrices
-    for (int i = 0; i < dim; ++i) 
-    {
-
-        for (int row = 0; row < rows; ++row) 
-        {
-            for (int col = 0; col < cols; ++col) 
-            {
-                 inputX >> X_vector[i](row, col);
-            }
-        }
-    }
-
-    // Close the input file
-    inputX.close();
-
-
-
-    // Generate and store A1, A2, A3, A4, A5, A6, A7, A8, and A9
-    for (int i = 0; i < dim; ++i) 
-    {
-        A_vector[i] = Acceleration(i, X_vector, rows, cols, g);
-    }  
-
-*/
-    // Define the initial accelerations from the equations of motion
-
-/* 
-There are terms in the equations of motion that appear a bunch of times. These are the bracketed terms that are most easily spotted by
-looking for the c^k. All bracketed terms with c^1 are the same, and that stands for all k. So I define them here to more easily write out
-the equations of motion.
-*/ 
-    Complex c1_term = abs(Z12)*abs(Z12) + abs(Z13)*abs(Z13) + (Z14 * Z14.adjoint())[0] - abs(Z21)*abs(Z21) - abs(Z31)*abs(Z31) - (Z41.adjoint() * Z41)[0] - c1/(g*g);
-    Complex c2_term = abs(Z21)*abs(Z21) + abs(Z23)*abs(Z23) + (Z24 * Z24.adjoint())[0] - abs(Z12)*abs(Z12) - abs(Z32)*abs(Z32) - (Z42.adjoint() * Z42)[0] - c2/(g*g);
-    Complex c3_term = abs(Z31)*abs(Z31) + abs(Z32)*abs(Z32) + (Z34 * Z34.adjoint())[0] - abs(Z13)*abs(Z13) - abs(Z23)*abs(Z23) - (Z43.adjoint() * Z43)[0] - c3/(g*g);
-    matrix c4_term = (Z41 * Z41.adjoint()) + (Z42 * Z42.adjoint()) + (Z43 * Z43.adjoint()) - (Z14.adjoint() * Z14) - (Z24.adjoint() * Z24) - (Z34.adjoint() * Z34) - c4/(g*g) * matrix::Identity();
-    
-
-    // Define the accelerations of Z
-
-    Complex Z12_double_dot = -Z12 * c1_term + Z12 * c2_term;
-    Complex Z21_double_dot = +Z21 * c1_term - Z21 * c2_term;
-    Complex Z13_double_dot = -Z13 * c1_term + Z13 * c3_term;
-    Complex Z31_double_dot = +Z31 * c1_term - Z31 * c3_term;
-    Complex Z23_double_dot = -Z23 * c2_term + Z23 * c3_term;
-    Complex Z32_double_dot = +Z32 * c2_term - Z32 * c3_term;
-
-    row_vector Z14_double_dot = -Z14 * c1_term + Z14 * c4_term;
-    row_vector Z41_double_dot =  Z41 * c1_term - c4_term * Z41;
-    row_vector Z24_double_dot = -Z24 * c2_term + Z24 * c4_term;
-    col_vector Z42_double_dot =  Z42 * c1_term - c4_term * Z42;
-    col_vector Z34_double_dot = -Z34 * c3_term + Z34 * c4_term;
-    col_vector Z43_double_dot =  Z43 * c3_term - c4_term * Z43;
-
-
+ // Put all variables into arrays to more easily write loops for the numerical integration algorithm.
 
     Complex scalar_Zs[6] = {Z12, Z13, Z21, Z23, Z31, Z32};
     row_vector row_Zs[3] = {Z14, Z24, Z34};
     col_vector col_Zs[3] = {Z41, Z42, Z43};
 
+ // Initialise the new Z arrays which will then be populated by the new Z values later.
     Complex scalar_Zs_new[6] = {Complex(0.0, 0.0), Complex(0, 0), Complex(0, 0), Complex(0, 0), Complex(0, 0), Complex(0, 0)};
     row_vector row_Zs_new[3] = {zero_row, zero_row, zero_row};
     col_vector col_Zs_new[3] = {zero_col, zero_col, zero_col};
@@ -229,17 +194,24 @@ the equations of motion.
     row_vector row_Z_double_dots_new[3] = {zero_row, zero_row, zero_row};
     col_vector col_Z_double_dots_new[3] = {zero_col, zero_col, zero_col};
 
-
-    Complex c1_term_new = abs(scalar_Zs_new[0])*abs(scalar_Zs_new[0]) + abs(scalar_Zs_new[1])*abs(scalar_Zs_new[1]) + (row_Zs_new[0] * row_Zs_new[0].adjoint())[0] - abs(scalar_Zs_new[2])*abs(scalar_Zs_new[2]) - abs(scalar_Zs_new[4])*abs(scalar_Zs_new[4]) - (col_Zs_new[0].adjoint() * col_Zs_new[0])[0] - c1/(g*g);
-    Complex c2_term_new = abs(scalar_Zs_new[2])*abs(scalar_Zs_new[2]) + abs(scalar_Zs_new[3])*abs(scalar_Zs_new[3]) + (row_Zs_new[1] * row_Zs_new[1].adjoint())[0] - abs(scalar_Zs_new[0])*abs(scalar_Zs_new[0]) - abs(scalar_Zs_new[5])*abs(scalar_Zs_new[5]) - (col_Zs_new[1].adjoint() * col_Zs_new[1])[0] - c2/(g*g);
-    Complex c3_term_new = abs(scalar_Zs_new[4])*abs(scalar_Zs_new[4]) + abs(scalar_Zs_new[5])*abs(scalar_Zs_new[5]) + (row_Zs_new[2] * row_Zs_new[2].adjoint())[0] - abs(scalar_Zs_new[1])*abs(scalar_Zs_new[1]) - abs(scalar_Zs_new[3])*abs(scalar_Zs_new[3]) - (col_Zs_new[2].adjoint() * col_Zs_new[2])[0] - c3/(g*g);
-    matrix c4_term_new = (col_Zs_new[0] * col_Zs_new[0].adjoint()) + (col_Zs_new[1] * col_Zs_new[1].adjoint()) + (col_Zs_new[2] * col_Zs_new[2].adjoint()) - (row_Zs_new[0].adjoint() * row_Zs_new[0]) - (row_Zs_new[1].adjoint() * row_Zs_new[1]) - (row_Zs_new[2].adjoint() * row_Zs_new[2]) - c4/(g*g) * matrix::Identity();
-
     // Write simulation to thermalise system
     for (int j = 0; j < seconds_thermalised / delta_t; ++j)
     {
+        /*
+        Algorithm works as follows:
+        Step 1) Calculate Z_new from old Z, Z_dot, and Z_double_dot values from the first velocity Verlet equation
 
-        // velocity Verlet 1 to get new positions from old positions, momentums and rate of change of momentums
+        Step 2) Calculate Z_double_dot_new from the Z_new calculated in step 1)
+
+        Step 3) Calculate Z_dot_new from Z_dot, Z_double_dot, and Z_double_dot_new.
+
+        Step 4) Redefine Z_new as Z, Z_dot_new as Z_dot, and Z_double_dot_new as Z_double_dot.
+
+        Step 5) Repeat all steps
+        */
+
+
+        // Step 1) velocity Verlet 1 to get new positions from old positions, momentums and rate of change of momentums
 
         for (int i = 0; i < 6; ++i)
         {
@@ -254,19 +226,13 @@ the equations of motion.
             col_Zs_new[i] = col_Zs[i] + col_Z_dots[i] * delta_t + Complex(0.5, 0) * col_Z_double_dots[i] * delta_t * delta_t;
         }
 
-        // Generate and store new A1, A2, A3, A4, A5, A6, A7, A8, and A9
-/*
-    matrix Z14_double_dot = -Z14 * c1_term + Z14 * c4_term;
-    matrix Z41_double_dot =  Z41 * c1_term - c4_term * Z41;
-    matrix Z24_double_dot = -Z24 * c2_term + Z24 * c4_term;
-    matrix Z42_double_dot =  Z42 * c1_term - c4_term * Z42;
-    matrix Z34_double_dot = -Z34 * c3_term + Z34 * c4_term;
-    matrix Z43_double_dot =  Z43 * c3_term - c4_term * Z43;
+        // Step 2) Generate and store new Z_double_dots
 
-    Complex scalar_Zs[6] = {Z12, Z13, Z21, Z23, Z31, Z32};
-    row_vector row_Zs[3] = {Z14, Z24, Z34};
-    col_vector col_Zs[3] = {Z41, Z42, Z43};
-*/
+        Complex c1_term_new = abs(scalar_Zs_new[0])*abs(scalar_Zs_new[0]) + abs(scalar_Zs_new[1])*abs(scalar_Zs_new[1]) + (row_Zs_new[0] * row_Zs_new[0].adjoint())[0] - abs(scalar_Zs_new[2])*abs(scalar_Zs_new[2]) - abs(scalar_Zs_new[4])*abs(scalar_Zs_new[4]) - (col_Zs_new[0].adjoint() * col_Zs_new[0])[0] - c1/(g*g);
+        Complex c2_term_new = abs(scalar_Zs_new[2])*abs(scalar_Zs_new[2]) + abs(scalar_Zs_new[3])*abs(scalar_Zs_new[3]) + (row_Zs_new[1] * row_Zs_new[1].adjoint())[0] - abs(scalar_Zs_new[0])*abs(scalar_Zs_new[0]) - abs(scalar_Zs_new[5])*abs(scalar_Zs_new[5]) - (col_Zs_new[1].adjoint() * col_Zs_new[1])[0] - c2/(g*g);
+        Complex c3_term_new = abs(scalar_Zs_new[4])*abs(scalar_Zs_new[4]) + abs(scalar_Zs_new[5])*abs(scalar_Zs_new[5]) + (row_Zs_new[2] * row_Zs_new[2].adjoint())[0] - abs(scalar_Zs_new[1])*abs(scalar_Zs_new[1]) - abs(scalar_Zs_new[3])*abs(scalar_Zs_new[3]) - (col_Zs_new[2].adjoint() * col_Zs_new[2])[0] - c3/(g*g);
+        matrix c4_term_new = (col_Zs_new[0] * col_Zs_new[0].adjoint()) + (col_Zs_new[1] * col_Zs_new[1].adjoint()) + (col_Zs_new[2] * col_Zs_new[2].adjoint()) - (row_Zs_new[0].adjoint() * row_Zs_new[0]) - (row_Zs_new[1].adjoint() * row_Zs_new[1]) - (row_Zs_new[2].adjoint() * row_Zs_new[2]) - c4/(g*g) * matrix::Identity();
+
         scalar_Z_double_dots_new[0] = -scalar_Zs_new[0] * c1_term_new + scalar_Zs_new[0] * c2_term_new;
         scalar_Z_double_dots_new[1] = +scalar_Zs_new[2] * c1_term_new - scalar_Zs_new[2] * c2_term_new;
         scalar_Z_double_dots_new[2] = -scalar_Zs_new[1] * c1_term_new + scalar_Zs_new[1] * c3_term_new;
@@ -281,7 +247,7 @@ the equations of motion.
         col_Z_double_dots_new[2] =  col_Zs_new[2] * c3_term_new - c4_term_new * col_Zs_new[2];
 
 
-        // Use Velocity Verlet 2 to get new momentums
+        // Step 3) Use Velocity Verlet 2 to get new momentums
         for (int i = 0; i < 6; ++i)
         {
             scalar_Z_dots_new[i] = scalar_Z_dots[i] + Complex(0.5, 0) * (scalar_Z_double_dots_new[i] + scalar_Z_double_dots[i]) * delta_t;
@@ -294,6 +260,13 @@ the equations of motion.
         {
             col_Z_dots_new[i] = col_Z_dots[i] + 0.5 * (col_Z_double_dots_new[i] + col_Z_double_dots[i]) * delta_t;
         }
+
+        if (j % 1000 == 0)
+        {
+            std::cout << *row_Z_double_dots << '\n' <<  *row_Z_double_dots_new << '\n';
+        }
+
+        // Step 4)
         // Copy elements from X_vector_new to X_vector
         std::memcpy(scalar_Zs, scalar_Zs_new, sizeof(scalar_Zs_new));  
         std::memcpy(row_Zs, row_Zs_new, sizeof(row_Zs_new));  
@@ -311,13 +284,13 @@ the equations of motion.
 
         if (j % 1000 == 0)
         {
-            //for (matrix el : V_vector)
-            //{
-            //    std::cout <<"Ideal " << el << std::endl;
-            //}
-            //std::cout  << std::endl << gauss_law(X_vector_new[0], X_vector_new[1], X_vector_new[2], X_vector_new[3], X_vector_new[4], X_vector_new[5], X_vector_new[6], X_vector_new[7], X_vector_new[8],
-            //                       V_vector_new[0], V_vector_new[1], V_vector_new[2], V_vector_new[3], V_vector_new[4], V_vector_new[5], V_vector_new[6], V_vector_new[7], V_vector_new[8]);
+            std::cout << *row_Z_double_dots << '\n' <<  *row_Z_double_dots_new << '\n';
+        }
 
+        // Every 1000 steps calculate the total energy of the system to see if it is conserved.
+        if (j % 1000 == 0)
+        {
+ 
             std::cout << std::endl;
             std::cout << "H" << std::setprecision(15) << H(g, 
                             scalar_Zs_new[0], scalar_Zs_new[1], scalar_Zs_new[2], scalar_Zs_new[3], scalar_Zs_new[4], scalar_Zs_new[5],
@@ -329,11 +302,11 @@ the equations of motion.
 
 
         }
-
+        // Step 5) repeat all steps.
     }
 
 
-
+    // This commented out code will eventually be used to put the Zs into text files, so they can be uploaded to python or to other.cpp files.
 /*
        // Export initial X/V/A_vector to text files to be analysed in python.
     std:: fstream X2_vector_Export("C:/Users/robtk/DIAS-Summer-Internship/C++/D-BranesNis4/thermalised_X.txt", std:: ios:: out);
@@ -368,7 +341,7 @@ the equations of motion.
 */
 
 
-
+    // Print the time it took to run this .cpp file.
     std::cout << "Finished" << std::time(nullptr)-start;
 
     return 0;

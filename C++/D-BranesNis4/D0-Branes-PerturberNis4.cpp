@@ -259,6 +259,7 @@ int main()
             V2_vector_new[i] = V2_vector[i] + 0.5 * (A2_vector_new[i] + A2_vector[i]) * delta_t;
         }
         
+        
         // Copy elements from X_vector_new to X_vector
         std::memcpy(X2_vector, X2_vector_new, sizeof(X2_vector_new));  
 
