@@ -167,6 +167,7 @@ Complex H(
 
 int main() 
 {
+
  // Put all variables into arrays to more easily write loops for the numerical integration algorithm.
 
     Complex scalar_Zs[6] = {Z12, Z13, Z21, Z23, Z31, Z32};
@@ -194,6 +195,84 @@ int main()
     row_vector row_Z_double_dots_new[3] = {zero_row, zero_row, zero_row};
     col_vector col_Z_double_dots_new[3] = {zero_col, zero_col, zero_col};
 
+
+
+// Create links to text files which we will populate with the Z and Z_dot and Z_double_dot values during the simulation.
+        
+        // Export initial Z, Z_dot, and Z_double_dot objects to text files to be analysed in python.
+    std:: fstream Z_scalar_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/D2-Branes/Z_scalar.txt", std:: ios:: out);
+    Z_scalar_Export << std::fixed << std::setprecision(15);
+    //Print to text file
+    for (Complex Z : scalar_Zs)
+    {
+        Z_scalar_Export << Z << std::endl;
+    }
+
+    std:: fstream Z_row_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/D2-Branes/Z_row.txt", std:: ios:: out);
+    Z_row_Export << std::fixed << std::setprecision(15);
+    //Print to text file
+    for (row_vector Z : row_Zs)
+    {
+        Z_row_Export << Z << std::endl;
+    }
+
+    std:: fstream Z_col_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/D2-Branes/Z_col.txt", std:: ios:: out);
+    Z_col_Export << std::fixed << std::setprecision(15);
+    //Print to text file
+    for (col_vector Z : col_Zs)
+    {
+        Z_col_Export << Z << std::endl;
+    }
+    
+    std:: fstream Z_dot_scalar_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/D2-Branes/Z_dot_scalar.txt", std:: ios:: out);
+    Z_dot_scalar_Export << std::fixed << std::setprecision(15);
+    //Print to text file
+    for (Complex Z : scalar_Z_dots)
+    {
+        Z_dot_scalar_Export << Z << std::endl;
+    }
+
+    std:: fstream Z_dot_row_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/D2-Branes/Z_dot_row.txt", std:: ios:: out);
+    Z_dot_row_Export << std::fixed << std::setprecision(15);
+    //Print to text file
+    for (row_vector Z : row_Z_dots)
+    {
+        Z_dot_row_Export << Z << std::endl;
+    }
+
+    std:: fstream Z_dot_col_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/D2-Branes/Z_dot_col.txt", std:: ios:: out);
+    Z_dot_col_Export << std::fixed << std::setprecision(15);
+    //Print to text file
+    for (col_vector Z : col_Z_dots)
+    {
+        Z_dot_col_Export << Z << std::endl;
+    }
+
+
+    std:: fstream Z_double_dot_scalar_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/D2-Branes/Z_double_dot_scalar.txt", std:: ios:: out);
+    Z_double_dot_scalar_Export << std::fixed << std::setprecision(15);
+    //Print to text file
+    for (Complex Z : scalar_Z_double_dots)
+    {
+        Z_double_dot_scalar_Export << Z << std::endl;
+    }
+
+    std:: fstream Z_double_dot_row_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/D2-Branes/Z_double_dot_row.txt", std:: ios:: out);
+    Z_double_dot_row_Export << std::fixed << std::setprecision(15);
+    //Print to text file
+    for (row_vector Z : row_Z_double_dots)
+    {
+        Z_double_dot_row_Export << Z << std::endl;
+    }
+
+    std:: fstream Z_double_dot_col_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/D2-Branes/Z_double_dot_col.txt", std:: ios:: out);
+    Z_double_dot_col_Export << std::fixed << std::setprecision(15);
+    //Print to text file
+    for (col_vector Z : col_Z_double_dots)
+    {
+        Z_double_dot_col_Export << Z << std::endl;
+    }
+
     // Write simulation to thermalise system
     for (int j = 0; j < seconds_thermalised / delta_t; ++j)
     {
@@ -209,7 +288,6 @@ int main()
 
         Step 5) Repeat all steps
         */
-
 
         // Step 1) velocity Verlet 1 to get new positions from old positions, momentums and rate of change of momentums
 
@@ -263,8 +341,26 @@ int main()
 
         if (j % 1000 == 0)
         {
-            std::cout << *row_Z_double_dots << '\n' <<  *row_Z_double_dots_new << '\n';
+            std::cout << j <<'\n';
+            for (int i = 0; i < 6; ++i)
+            {
+
+                std::cout << i <<'\n' << "Z" << scalar_Zs[i] << '\n' <<  scalar_Zs_new[i] << '\n';
+            }
         }
+/*
+        if (j % 1000 == 0)
+        {
+            for (int i = 0; i < 3; ++i)
+            {
+
+                std::cout << j <<'\n' << "Z_dot" << row_Z_dots[i] << '\n' <<  row_Z_dots_new[i] << '\n';
+            }
+        }
+*/
+
+
+
 
         // Step 4)
         // Copy elements from X_vector_new to X_vector
@@ -282,11 +378,6 @@ int main()
         std::memcpy(row_Z_double_dots, row_Z_double_dots_new, sizeof(row_Z_double_dots_new));  
         std::memcpy(col_Z_double_dots, col_Z_double_dots_new, sizeof(col_Z_double_dots_new));  
 
-        if (j % 1000 == 0)
-        {
-            std::cout << *row_Z_double_dots << '\n' <<  *row_Z_double_dots_new << '\n';
-        }
-
         // Every 1000 steps calculate the total energy of the system to see if it is conserved.
         if (j % 1000 == 0)
         {
@@ -300,46 +391,76 @@ int main()
                             row_Z_dots_new[0], row_Z_dots_new[1], row_Z_dots_new[2],
                             col_Z_dots_new[0], col_Z_dots_new[1], col_Z_dots_new[2]);
 
+        // Print Zs to text files
+            //Print to text file
+            for (Complex Z : scalar_Zs)
+            {
+            Z_scalar_Export << Z << std::endl;
+            }
 
+            //Print to text file
+            for (row_vector Z : row_Zs)
+            {
+            Z_row_Export << Z << std::endl;
+            }
+
+            //Print to text file
+            for (col_vector Z : col_Zs)
+            {
+            Z_col_Export << Z << std::endl;
+            }
+    
+            //Print to text file
+            for (Complex Z : scalar_Z_dots)
+            {
+                Z_dot_scalar_Export << Z << std::endl;
+            }
+
+            //Print to text file
+            for (row_vector Z : row_Z_dots)
+            {
+                Z_dot_row_Export << Z << std::endl;
+            }
+
+            //Print to text file
+            for (col_vector Z : col_Z_dots)
+            {
+                Z_dot_col_Export << Z << std::endl;
+            }
+
+
+                //Print to text file
+            for (Complex Z : scalar_Z_double_dots)
+            {
+                Z_double_dot_scalar_Export << Z << std::endl;
+            }
+
+            //Print to text file
+            for (row_vector Z : row_Z_double_dots)
+            {
+                Z_double_dot_row_Export << Z << std::endl;
+            }
+
+            //Print to text file
+            for (col_vector Z : col_Z_double_dots)
+            {
+                Z_double_dot_col_Export << Z << std::endl;
+            }
         }
         // Step 5) repeat all steps.
     }
 
 
     // This commented out code will eventually be used to put the Zs into text files, so they can be uploaded to python or to other.cpp files.
-/*
-       // Export initial X/V/A_vector to text files to be analysed in python.
-    std:: fstream X2_vector_Export("C:/Users/robtk/DIAS-Summer-Internship/C++/D-BranesNis4/thermalised_X.txt", std:: ios:: out);
-    X2_vector_Export << std::fixed << std::setprecision(15);
-    //Print to text file
-    for (matrix Matrix : X_vector_new)
-    {
-        X2_vector_Export << Matrix << std::endl;
-    }
-
-
-    std:: fstream V2_vector_Export("C:/Users/robtk/DIAS-Summer-Internship/C++/D-BranesNis4/thermalised_V.txt", std:: ios:: out);
-    V2_vector_Export << std::fixed << std::setprecision(15);
-    for (matrix Matrix : V_vector_new)
-    {
-        V2_vector_Export << Matrix << std::endl;
-    }
-
-    std:: fstream A2_vector_Export("C:/Users/robtk/DIAS-Summer-Internship/C++/D-BranesNis4/thermalised_A.txt", std:: ios:: out);
-    A2_vector_Export << std::fixed << std::setprecision(15);
-    // Print to text file
-    for (matrix Matrix : A_vector_new)
-    {
-        A2_vector_Export << Matrix << std::endl;
-    }
-
-
-    X2_vector_Export.close();
-    V2_vector_Export.close();
-    A2_vector_Export.close();
-
-*/
-
+    Z_scalar_Export.close();
+    Z_row_Export.close();
+    Z_col_Export.close();
+    Z_dot_scalar_Export.close();
+    Z_dot_row_Export.close();
+    Z_dot_col_Export.close();
+    Z_double_dot_scalar_Export.close();
+    Z_double_dot_row_Export.close();
+    Z_double_dot_col_Export.close();
 
     // Print the time it took to run this .cpp file.
     std::cout << "Finished" << std::time(nullptr)-start;

@@ -73,11 +73,11 @@ int main()
         col_vector Z41;
         Z41(0,0) = R_or_C(1,1);
         Z41(1,0) = R_or_C(2,1);
-        Z41(2,0) = R_or_C(3,1);
+        Z41(2,0) = R_or_C(3,2);
         Z41(3,0) = R_or_C(4,1);
 
-        std::cout << Z14 << '\n' << (Z14 * Z14.adjoint());
-        std::cout << Z41 << '\n' << 34 + (Z41.adjoint() * Z41)[0].real();
+        std::cout << Z14 << '\n' << "This one"<< matrix::Identity();
+        std::cout << (Z41.adjoint() * Z41)[0] << '\n' <<(Z41.adjoint() * Z41);
 /*
         long double Z = ((Z14 * Z14.adjoint())).real();
 
