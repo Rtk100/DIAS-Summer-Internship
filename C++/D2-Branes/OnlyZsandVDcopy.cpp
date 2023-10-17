@@ -83,23 +83,17 @@ col_vector Z42 = col_vector::Random();
 col_vector Z43 = col_vector::Random();
 */
 
-Complex Z12 = Complex((0.207606,0.366979));
-Complex Z13 = Complex((0.0365052,-0.344526));
+Complex Z12 = Complex(0.207606,0.366979);
+Complex Z13 = Complex(0.0365052,-0.344526);
 
-Complex Z21 = Complex((0.0786534,-1.71609));
-Complex Z23 = Complex((0.508537,1.50702));
+Complex Z21 = Complex(0.0786534,-1.71609);
+Complex Z23 = Complex(0.508537,1.50702);
 
-Complex Z31 = Complex((0.547891,0.496717));
-Complex Z32 = Complex((-0.937337,-1.09565));
+Complex Z31 = Complex(0.547891,0.496717);
+Complex Z32 = Complex(-0.937337,-1.09565);
 
 // Random argument below gives the same Z vectors every time the code is run unfortunately.
-row_vector Z14 = row_vector::Random();
-row_vector Z24 = row_vector::Random();
-row_vector Z34 = row_vector::Random();
 
-col_vector Z41 = col_vector::Random();
-col_vector Z42 = col_vector::Random();
-col_vector Z43 = col_vector::Random();
 
 
 
@@ -123,26 +117,7 @@ col_vector Z41_dot = zero_col;
 col_vector Z42_dot = zero_col;
 col_vector Z43_dot = zero_col;
 
-// These terms are present in all the equations of motion for Z.
-Complex c1_term = abs(Z12)*abs(Z12) + abs(Z13)*abs(Z13) + (Z14 * Z14.adjoint())[0] - abs(Z21)*abs(Z21) - abs(Z31)*abs(Z31) - (Z41.adjoint() * Z41)[0] - c1/(g*g);
-Complex c2_term = abs(Z21)*abs(Z21) + abs(Z23)*abs(Z23) + (Z24 * Z24.adjoint())[0] - abs(Z12)*abs(Z12) - abs(Z32)*abs(Z32) - (Z42.adjoint() * Z42)[0] - c2/(g*g);
-Complex c3_term = abs(Z31)*abs(Z31) + abs(Z32)*abs(Z32) + (Z34 * Z34.adjoint())[0] - abs(Z13)*abs(Z13) - abs(Z23)*abs(Z23) - (Z43.adjoint() * Z43)[0] - c3/(g*g);
-matrix c4_term = (Z41 * Z41.adjoint()) + (Z42 * Z42.adjoint()) + (Z43 * Z43.adjoint()) - (Z14.adjoint() * Z14) - (Z24.adjoint() * Z24) - (Z34.adjoint() * Z34) - c4/(g*g) * matrix::Identity();
-    
-// Define the Z accelerations from the equations of motion.
-Complex Z12_double_dot = -Z12 * c1_term + Z12 * c2_term;
-Complex Z13_double_dot = -Z13 * c1_term + Z13 * c3_term;
-Complex Z21_double_dot = +Z21 * c1_term - Z21 * c2_term;
-Complex Z23_double_dot = -Z23 * c2_term + Z23 * c3_term;
-Complex Z31_double_dot = +Z31 * c1_term - Z31 * c3_term;
-Complex Z32_double_dot = +Z32 * c2_term - Z32 * c3_term;
 
-row_vector Z14_double_dot = -Z14 * c1_term + Z14 * c4_term;
-row_vector Z41_double_dot =  Z41 * c1_term - c4_term * Z41;
-row_vector Z24_double_dot = -Z24 * c2_term + Z24 * c4_term;
-col_vector Z42_double_dot =  Z42 * c1_term - c4_term * Z42;
-col_vector Z34_double_dot = -Z34 * c3_term + Z34 * c4_term;
-col_vector Z43_double_dot =  Z43 * c3_term - c4_term * Z43;
 
 // Define H = K + V
 Complex H(
@@ -188,6 +163,64 @@ Complex H(
 
 int main() 
 {
+    row_vector Z14;
+    Z14(0,0) = Complex(1,1);
+    Z14(0,1) = Complex(2,1);
+    Z14(0,2) = Complex(3,1);
+    row_vector Z24;
+    Z24(0,0) = Complex(1,2);
+    Z24(0,1) = Complex(2,2);
+    Z24(0,2) = Complex(3,2);
+    row_vector Z34;
+    Z34(0,0) = Complex(1,3);
+    Z34(0,1) = Complex(2,3);
+    Z34(0,2) = Complex(3,3);
+
+    col_vector Z41;
+    Z41(0,0) = Complex(1,1);
+    Z41(1,0) = Complex(1,2);
+    Z41(2,0) = Complex(1,3);
+    col_vector Z42;
+    Z42(0,0) = Complex(2,1);
+    Z42(1,0) = Complex(2,2);
+    Z42(2,0) = Complex(2,3);
+    col_vector Z43;
+    Z43(0,0) = Complex(3,1);
+    Z43(1,0) = Complex(3,2);
+    Z43(2,0) = Complex(3,3);
+    std::cout << Z12 << '\n';
+    std::cout << Z13 << '\n';
+    std::cout << Z21 << '\n';
+    std::cout << Z23 << '\n';
+    std::cout << Z31 << '\n';
+    std::cout << Z32 << '\n';
+    std::cout << Z14 << '\n';
+    std::cout << Z24 << '\n';
+    std::cout << Z34 << '\n';
+    std::cout << Z41 << '\n';
+    std::cout << Z42 << '\n';
+    std::cout << Z43 << '\n';
+
+    // These terms are present in all the equations of motion for Z.
+    Complex c1_term = abs(Z12)*abs(Z12) + abs(Z13)*abs(Z13) + (Z14 * Z14.adjoint())[0] - abs(Z21)*abs(Z21) - abs(Z31)*abs(Z31) - (Z41.adjoint() * Z41)[0] - c1/(g*g);
+    Complex c2_term = abs(Z21)*abs(Z21) + abs(Z23)*abs(Z23) + (Z24 * Z24.adjoint())[0] - abs(Z12)*abs(Z12) - abs(Z32)*abs(Z32) - (Z42.adjoint() * Z42)[0] - c2/(g*g);
+    Complex c3_term = abs(Z31)*abs(Z31) + abs(Z32)*abs(Z32) + (Z34 * Z34.adjoint())[0] - abs(Z13)*abs(Z13) - abs(Z23)*abs(Z23) - (Z43.adjoint() * Z43)[0] - c3/(g*g);
+    matrix c4_term = (Z41 * Z41.adjoint()) + (Z42 * Z42.adjoint()) + (Z43 * Z43.adjoint()) - (Z14.adjoint() * Z14) - (Z24.adjoint() * Z24) - (Z34.adjoint() * Z34) - c4/(g*g) * matrix::Identity();
+
+    // Define the Z accelerations from the equations of motion.
+    Complex Z12_double_dot = -Z12 * c1_term + Z12 * c2_term;
+    Complex Z13_double_dot = -Z13 * c1_term + Z13 * c3_term;
+    Complex Z21_double_dot = +Z21 * c1_term - Z21 * c2_term;
+    Complex Z23_double_dot = -Z23 * c2_term + Z23 * c3_term;
+    Complex Z31_double_dot = +Z31 * c1_term - Z31 * c3_term;
+    Complex Z32_double_dot = +Z32 * c2_term - Z32 * c3_term;
+
+    row_vector Z14_double_dot = -Z14 * c1_term + Z14 * c4_term;
+    row_vector Z41_double_dot =  Z41 * c1_term - c4_term * Z41;
+    row_vector Z24_double_dot = -Z24 * c2_term + Z24 * c4_term;
+    col_vector Z42_double_dot =  Z42 * c1_term - c4_term * Z42;
+    col_vector Z34_double_dot = -Z34 * c3_term + Z34 * c4_term;
+    col_vector Z43_double_dot =  Z43 * c3_term - c4_term * Z43;
 
  // Put all variables into arrays to more easily write loops for the numerical integration algorithm.
 

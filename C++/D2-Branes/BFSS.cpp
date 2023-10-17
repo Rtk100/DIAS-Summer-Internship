@@ -35,9 +35,6 @@ const int dim = 9;
 typedef std::complex<long double> R_or_C;
 typedef Eigen:: Matrix<std::complex<long double>, N, N> matrix;
 
-
-
-
 matrix commutator(matrix A, matrix B)
 {
     return A * B - B * A;
