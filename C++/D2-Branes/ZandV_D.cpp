@@ -19,29 +19,29 @@ double start = std::time(nullptr);
 
 // Random ci coefficients, I think these are valid numbers for them.
 /*
-double c1 = gauss_dist(rng);
-double c2 = gauss_dist(rng);
-double c3 = gauss_dist(rng);
-double c4 = gauss_dist(rng);
+long double c1 = gauss_dist(rng);
+long double c2 = gauss_dist(rng);
+long double c3 = gauss_dist(rng);
+long double c4 = gauss_dist(rng);
 */
 
-double c1 = 2.5;
-double c2 = 3.3;
-double c3 = 1.2;
-double c4 = -c1-c2-c3;
+long double c1 = 2.5;
+long double c2 = 3.3;
+long double c3 = 1.2;
+long double c4 = -c1-c2-c3;
 
-double c12 = 1.1;
-double c13 = 2.2;
-double c23 = 2.0;
-double c14 = 0.7;
-double c24 = 3.1;
-double c34 = 0.9;
+long double c12 = 1.1;
+long double c13 = 2.2;
+long double c23 = 2.0;
+long double c14 = 0.7;
+long double c24 = 3.1;
+long double c34 = 0.9;
 
 // Define timestep that each repetition will advance by.
-const double delta_t = 1e-4;
+const long double delta_t = 1e-4;
 
 // Define the amount of seconds the system will be thermalised for
-const double seconds_thermalised = 10;
+const long double seconds_thermalised = 10;
 
 // Repeat simulation for appropriate amount of repetitions to reach the desired seconds thermalised.
 const int simulation_repetitions = seconds_thermalised / delta_t;
@@ -49,7 +49,7 @@ const int simulation_repetitions = seconds_thermalised / delta_t;
 // Number of D0-Branes
 const int N = 3;
 
-const double g = 1.0;
+const long double g = 1.0;
 
 // Define number of columns and rows each X matrix will have
 const int rows = N;
@@ -60,16 +60,16 @@ const int dim = 9;
 
 // Typedefs are used to define the type of object a variable is without writing the entire C++ name of each variable type
 
-typedef std::complex<double> Complex;
-typedef Eigen:: Matrix<std::complex<double>, N, N> matrix;
-typedef Eigen:: Matrix<std::complex<double>, 1, N> row_vector;
-typedef Eigen:: Matrix<std::complex<double>, N, 1> col_vector;
+typedef std::complex<long double> Complex;
+typedef Eigen:: Matrix<Complex, N, N> matrix;
+typedef Eigen:: Matrix<Complex, 1, N> row_vector;
+typedef Eigen:: Matrix<Complex, N, 1> col_vector;
 
 // Initialise all Z generalised coords as randomised scalars or vectors
 static std::random_device rd;
-double sigma = 1.0;
+long double sigma = 1.0;
 static std::mt19937 rng(10); 
-std::normal_distribution<double> dist(0, 1);
+std::normal_distribution<long double> dist(0, 1);
 
 /*
 Complex Z12 = Complex((dist(rng),dist(rng)));
@@ -92,18 +92,18 @@ col_vector Z43 = col_vector::Random();
 */
 
 Complex Z12 = Complex(0.207606,0.366979);
-//Complex Z13 = Complex(0.0365052,-0.344526);
+Complex Z13 = Complex(0.0365052,-0.344526);
 
-//Complex Z21 = Complex(0.0786534,-1.71609);
-//Complex Z23 = Complex(0.508537,1.50702);
+Complex Z21 = Complex(0.0786534,-1.71609);
+Complex Z23 = Complex(0.508537,1.50702);
 
-//Complex Z31 = Complex(0.547891,0.496717);
-//Complex Z32 = Complex(-0.937337,-1.09565);
-Complex Z13 = Complex(0,0);
-Complex Z21 = Complex(0,0);
-Complex Z23 = Complex(0,0);
-Complex Z31 = Complex(0,0);
-Complex Z32 = Complex(0,0);
+Complex Z31 = Complex(0.547891,0.496717);
+Complex Z32 = Complex(-0.937337,-1.09565);
+//Complex Z13 = Complex(0,0);
+//Complex Z21 = Complex(0,0);
+//Complex Z23 = Complex(0,0);
+//Complex Z31 = Complex(0,0);
+//Complex Z32 = Complex(0,0);
 
 // Create a zero matrix and zero vectors.
 matrix zero_matrix = matrix::Zero();
@@ -128,8 +128,8 @@ col_vector Z43_dot = zero_col;
 
 
 // Define H = K + V
-double H(
-    const double g, 
+long double H(
+    const long double g, 
     Complex Z12, Complex Z13, Complex Z21, Complex Z23, Complex Z31, Complex Z32,
     row_vector Z14, row_vector Z24, row_vector Z34,
     col_vector Z41, col_vector Z42, col_vector Z43,
@@ -138,7 +138,7 @@ double H(
     col_vector Z41_dot, col_vector Z42_dot, col_vector Z43_dot)
 {   
 
-    double K = 0.5 * (std::conj(Z12_dot)*Z12_dot + std::conj(Z13_dot)*Z13_dot +
+    long double K = 0.5 * (std::conj(Z12_dot)*Z12_dot + std::conj(Z13_dot)*Z13_dot +
                                    std::conj(Z21_dot)*Z21_dot + std::conj(Z23_dot)*Z23_dot + 
                                    std::conj(Z31_dot)*Z31_dot + std::conj(Z32_dot)*Z32_dot + 
                                    (Z14_dot.adjoint()*Z14_dot).trace().real() + (Z24_dot.adjoint()*Z24_dot).trace().real() + 
@@ -162,17 +162,17 @@ double H(
                         (Z14.adjoint() * Z14 + Z24.adjoint() * Z24 + Z34.adjoint() * Z34 ) 
                         - c4/(g*g) * matrix::Identity() );
 
-    double V_D = 0.5 * ((V_D_arg_k1 * V_D_arg_k1) + (V_D_arg_k2 * V_D_arg_k2) + 
+    long double V_D = 0.5 * ((V_D_arg_k1 * V_D_arg_k1) + (V_D_arg_k2 * V_D_arg_k2) + 
              (V_D_arg_k3 * V_D_arg_k3) + (V_D_arg_k4 * V_D_arg_k4).trace().real() ).real();
 
-    double V = g*g*V_D;
+    long double V = g*g*V_D;
 
     return K + V;
 }
 
 int main() 
 {
-    /*
+
     row_vector Z14;
     Z14(0,0) = Complex(1,1);
     Z14(0,1) = Complex(2,1);
@@ -198,7 +198,8 @@ int main()
     Z43(0,0) = Complex(3,1);
     Z43(1,0) = Complex(3,2);
     Z43(2,0) = Complex(3,3);
-*/
+
+/*
     row_vector Z14;
     Z14(0,0) = Complex(0,0);
     Z14(0,1) = Complex(0,0);
@@ -224,7 +225,7 @@ int main()
     Z43(0,0) = Complex(0,0);
     Z43(1,0) = Complex(0,0);
     Z43(2,0) = Complex(0,0);
-
+*/
     // These terms are present in all the equations of motion for Z.
     Complex c1_term = abs(Z12)*abs(Z12) + abs(Z13)*abs(Z13) + (Z14 * Z14.adjoint()).trace() - abs(Z21)*abs(Z21) - abs(Z31)*abs(Z31) - (Z41.adjoint() * Z41).trace() - c1/(g*g);
     Complex c2_term = abs(Z21)*abs(Z21) + abs(Z23)*abs(Z23) + (Z24 * Z24.adjoint()).trace() - abs(Z12)*abs(Z12) - abs(Z32)*abs(Z32) - (Z42.adjoint() * Z42).trace() - c2/(g*g);
@@ -427,7 +428,7 @@ int main()
         col_Z_double_dots_new[0] = Complex(2,0) * ( col_Zs_new[0] * c1_term_new - c4_term_new * col_Zs_new[0]);
 
         row_Z_double_dots_new[1] = Complex(2,0) * (-row_Zs_new[1] * c2_term_new + row_Zs_new[1] * c4_term_new);
-        col_Z_double_dots_new[1] = Complex(2,0) * ( col_Zs_new[1] * c1_term_new - c4_term_new * col_Zs_new[1]);
+        col_Z_double_dots_new[1] = Complex(2,0) * ( col_Zs_new[1] * c2_term_new - c4_term_new * col_Zs_new[1]);
 
         row_Z_double_dots_new[2] = Complex(2,0) * (-row_Zs_new[2] * c3_term_new + row_Zs_new[2] * c4_term_new);
         col_Z_double_dots_new[2] = Complex(2,0) * ( col_Zs_new[2] * c3_term_new - c4_term_new * col_Zs_new[2]);  
