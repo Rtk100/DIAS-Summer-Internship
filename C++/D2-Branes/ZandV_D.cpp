@@ -277,7 +277,7 @@ int main()
 
 
 // Create links to text files which we will populate with the Z and Z_dot and Z_double_dot values during the simulation.
-        
+    /*    
         // Export initial Z, Z_dot, and Z_double_dot objects to text files to be analysed in python.
     std:: fstream Z_scalar_Export("C:/Users/robtk/OneDrive/Desktop/DIAS Internship/Raw data/D2-Branes/Z_scalar.txt", std:: ios:: out);
     Z_scalar_Export << std::fixed << std::setprecision(15);
@@ -351,7 +351,7 @@ int main()
     {
         Z_double_dot_col_Export << Z << std::endl;
     }
-
+    */
 
     std::cout << std::setprecision(15)<< "Starting Energy" << H(g, 
                             scalar_Zs[0], scalar_Zs[1], scalar_Zs[2], scalar_Zs[3], scalar_Zs[4], scalar_Zs[5],
@@ -466,6 +466,7 @@ int main()
         std::memcpy(col_Z_double_dots, col_Z_double_dots_new, sizeof(col_Z_double_dots_new));  
 
         // Every 1000 steps Print Zs to text files for analysis in Python.
+        /*
         if (j % 1000 == 0)
         {
         // Print Zs to text files
@@ -524,11 +525,13 @@ int main()
                 Z_double_dot_col_Export << Z << std::endl;
             }
         }
+        */
         // Step 5) repeat all steps.
     }
 
 
     // Zs have now been put into text files, so they can be uploaded to python or to other.cpp files.
+    /*
     Z_scalar_Export.close();
     Z_row_Export.close();
     Z_col_Export.close();
@@ -538,7 +541,7 @@ int main()
     Z_double_dot_scalar_Export.close();
     Z_double_dot_row_Export.close();
     Z_double_dot_col_Export.close();
-
+    */
     // Print the time it took to run this .cpp file.
     std::cout << "Finished" << std::time(nullptr)-start;
 
